@@ -1,0 +1,22 @@
+name: Continuous Integration
+
+on: [pull_request, push]
+
+jobs:
+    continuous-integration:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v3
+
+            # instala gcc, g++ e o make
+            - name: install c++ dependecies
+              run: |
+                sudo apt-get update
+                sudo apt-get install -y build-essential cmake libboost-all-dev
+
+            # roda os testes do makefile
+            - name: run build and test
+              run: |
+                make build
+                

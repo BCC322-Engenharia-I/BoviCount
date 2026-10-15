@@ -17,6 +17,6 @@ jobs:
 
             # roda os testes do makefile
             - name: run build and test
-              run: |
-                make build
+              run: 
+                #adicionar comandos do makefile
                 

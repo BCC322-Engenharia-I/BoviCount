@@ -13,10 +13,14 @@ jobs:
             - name: install c++ dependecies
               run: |
                 sudo apt-get update
-                sudo apt-get install -y build-essential cmake libboost-all-dev
+                sudo apt-get install -y build-essential
 
-            # roda os testes do makefile
-            - name: run build and test
-              run: 
-                #adicionar comandos do makefile
-                
+            # compila a aplicacao
+            - name: build
+              run: make compile
+
+            # compila e roda os testes do pasto
+            - name: test pasto
+              run: |
+                make compile-test-pasto
+                make run-test-pasto

@@ -2,23 +2,27 @@
 #define PASTO_H
 
 #include <string>
+#include "DadosPasto.hpp"
 
-// Classe abstrata base para os tipos de pasto.
+// Um pasto ja cadastrado: os dados informados mais o numero que o identifica
+// e a fazenda a que pertence.
 class Pasto {
-protected:
+private:
+    int idPasto;
     std::string nome;
-    std::string lote;
-    double area;
+    std::string localizacao;
+    int capacidade;
+    int idPropriedade;
 
 public:
     Pasto();
-    Pasto(const std::string& nome, const std::string& lote, double area);
-    Pasto(const Pasto& outro);
-    Pasto& operator=(const Pasto& outro);
-    virtual ~Pasto();
+    Pasto(int id, const DadosPasto& dados, int idPropriedade);
 
-    std::string getNome() const;
-    virtual int calcularCapacidade() const = 0;
+    int id() const;
+    std::string name() const;
+    std::string location() const;
+    int capacity() const;
+    int propertyId() const;   // fazenda a que o pasto pertence
 };
 
 #endif // PASTO_H

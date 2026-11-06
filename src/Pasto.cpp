@@ -1,29 +1,20 @@
 #include "Pasto.hpp"
-#include <stdexcept>
 
-Pasto::Pasto() : nome(), lote(), area(0.0) {}
+Pasto::Pasto() : idPasto(0), nome(), localizacao(), capacidade(0), idPropriedade(0) {}
 
-Pasto::Pasto(const std::string& nome, const std::string& lote, double area)
-    : nome(nome), lote(lote), area(area) {
-    if (area < 0.0) {
-        throw std::invalid_argument("Pasto: a area nao pode ser negativa");
-    }
-}
+Pasto::Pasto(int id, const DadosPasto& dados, int idPropriedade)
+    : idPasto(id),
+      nome(dados.name()),
+      localizacao(dados.location()),
+      capacidade(dados.capacity()),
+      idPropriedade(idPropriedade) {}
 
-Pasto::Pasto(const Pasto& novo)
-    : nome(novo.nome), lote(novo.lote), area(novo.area) {}
+int Pasto::id() const { return idPasto; }
 
-Pasto& Pasto::operator=(const Pasto& novo) {
-    if (this != &novo) {
-        nome = novo.nome;
-        lote = novo.lote;
-        area = novo.area;
-    }
-    return *this;
-}
+std::string Pasto::name() const { return nome; }
 
-Pasto::~Pasto() {}
+std::string Pasto::location() const { return localizacao; }
 
-std::string Pasto::getNome() const {
-    return nome;
-}
+int Pasto::capacity() const { return capacidade; }
+
+int Pasto::propertyId() const { return idPropriedade; }

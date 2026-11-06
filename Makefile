@@ -1,3 +1,5 @@
+SRC = src/Usuario.cpp src/Sessao.cpp src/DadosPasto.cpp src/Pasto.cpp src/RepositorioPastos.cpp src/ServicoPastos.cpp
+
 # mostra os comandos disponiveis
 help:
 	@echo "Comandos disponiveis:"
@@ -8,7 +10,7 @@ help:
 
 # compila a aplicacao
 compile:
-	g++ -Iinclude src/main.cpp src/Pasto.cpp src/PastoPlano.cpp src/PastoMorro.cpp src/GestaoPastoImpl.cpp -o bin/app
+	g++ -Iinclude src/main.cpp $(SRC) -o bin/app
 
 # roda a aplicacao
 run:
@@ -16,7 +18,7 @@ run:
 
 # compila os testes do pasto
 compile-test-pasto:
-	g++ -Iinclude src/Pasto.cpp src/PastoPlano.cpp src/PastoMorro.cpp src/GestaoPastoImpl.cpp test/test_pasto.cpp -o bin/test_pasto
+	g++ -Iinclude $(SRC) test/test_pasto.cpp -o bin/test_pasto
 
 # roda os testes do pasto
 run-test-pasto:

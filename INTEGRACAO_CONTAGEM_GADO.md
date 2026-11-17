@@ -12,6 +12,7 @@ Este pacote parte do repositorio principal BoviCount e preserva o modulo de past
 - `make compile && make run`: aplicativo principal, como antes.
 - `make run-test-pasto`: testes ja existentes de pastos.
 - `make run-test-contagem-gado`: 14 testes unitarios de contagem.
+- `make run-test-historico`: unitarios de historico.
 - `make run-funcional-contagem-gado`: um teste funcional de contagem.
 
 **Limite:** a IA e simulada nos testes. O pacote nao implementa deteccao real YOLO/OpenCV nem valida a contagem real de animais presentes nas imagens.

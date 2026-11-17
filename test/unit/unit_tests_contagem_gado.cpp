@@ -1,7 +1,7 @@
 #include "unit_tests_contagem_gado.h"
-#include "../../src/contagem_gado/contagem_gado.h"
-#include "../../src/contagem_gado/servico_contagem_gado.h"
-#include "../../src/contagem_gado/usuario_contagem_gado.h"
+#include "contagem_gado.h"
+#include "servico_contagem_gado.h"
+#include "usuario_contagem_gado.h"
 
 #include <cassert>
 #include <filesystem>

@@ -1,3 +1,12 @@
+/**
+ * @file servico_contagem_gado.cpp
+ * @brief Implementação da validação de imagens e acionamento do motor de visão.
+ *
+ * Contém funções auxiliares internas para ler as dimensões de arquivos
+ * PNG e JPEG e verificar o limite adotado de 4K UHD (3840 x 2160).
+ * @see servico_contagem_gado.h
+ */
+
 #include "contagem_gado/servico_contagem_gado.h"
 
 #include <algorithm>
@@ -15,9 +24,16 @@ namespace {
 
 // Interpretacao adotada para "ate 4K": UHD 3840x2160 (ou 2160x3840).
 
+/** @brief Limite para a maior dimensão da imagem, em pixels. */
 constexpr std::uint32_t LIMITE_4K_MAIOR = 3840;
+/** @brief Limite para a menor dimensão da imagem, em pixels. */
 constexpr std::uint32_t LIMITE_4K_MENOR = 2160;
 
+/**
+ * @brief Interpreta quatro bytes consecutivos em ordem big-endian.
+ * @param b Ponteiro para quatro bytes disponíveis.
+ * @return Valor inteiro sem sinal de 32 bits.
+ */
 std::uint32_t lerBE32(const unsigned char* b) {
     return (static_cast<std::uint32_t>(b[0]) << 24) |
            (static_cast<std::uint32_t>(b[1]) << 16) |
@@ -25,11 +41,24 @@ std::uint32_t lerBE32(const unsigned char* b) {
            static_cast<std::uint32_t>(b[3]);
 }
 
+/**
+ * @brief Interpreta dois bytes consecutivos em ordem big-endian.
+ * @param b Ponteiro para dois bytes disponíveis.
+ * @return Valor inteiro sem sinal de 16 bits.
+ */
 std::uint16_t lerBE16(const unsigned char* b) {
     return static_cast<std::uint16_t>((b[0] << 8) | b[1]);
 }
 
 // Le as dimensoes do cabecalho PNG sem bibliotecas adicionais.
+/**
+ * @brief Lê largura e altura no cabeçalho IHDR de um PNG.
+ * @param arquivo Fluxo binário posicionado no início do arquivo.
+ * @param largura Recebe a largura em pixels se a leitura for válida.
+ * @param altura Recebe a altura em pixels se a leitura for válida.
+ * @return true se a assinatura e o cabeçalho forem reconhecidos;
+ *         false em caso de falha ou dimensões nulas.
+ */
 bool dimensoesPNG(std::ifstream& arquivo, std::uint32_t& largura,
                   std::uint32_t& altura) {
     std::array<unsigned char, 24> cabecalho{};
@@ -55,6 +84,11 @@ bool dimensoesPNG(std::ifstream& arquivo, std::uint32_t& largura,
     return largura > 0 && altura > 0;
 }
 
+/**
+ * @brief Identifica marcadores JPEG do tipo Start of Frame com dimensões.
+ * @param marcador Código do marcador JPEG.
+ * @return true se o marcador informa dimensões; false caso contrário.
+ */
 bool marcadorComDimensoes(unsigned char marcador) {
     return (marcador >= 0xC0 && marcador <= 0xC3) ||
            (marcador >= 0xC5 && marcador <= 0xC7) ||
@@ -62,6 +96,13 @@ bool marcadorComDimensoes(unsigned char marcador) {
            (marcador >= 0xCD && marcador <= 0xCF);
 }
 
+/**
+ * @brief Procura largura e altura nos segmentos de um JPEG.
+ * @param arquivo Fluxo binário posicionado no início do arquivo.
+ * @param largura Recebe a largura se encontrada.
+ * @param altura Recebe a altura se encontrada.
+ * @return true quando encontra dimensões válidas; false se a leitura falhar.
+ */
 bool dimensoesJPEG(std::ifstream& arquivo, std::uint32_t& largura,
                    std::uint32_t& altura) {
     unsigned char inicio[2]{};
@@ -111,6 +152,17 @@ bool dimensoesJPEG(std::ifstream& arquivo, std::uint32_t& largura,
     }
 }
 
+/**
+ * @brief Confere a resolução informada no cabeçalho de um PNG ou JPEG.
+ *
+ * Aceita maior dimensão de até 3840 e menor dimensão de até 2160 pixels.
+ * Não decodifica a imagem inteira nem confirma se todos os dados de imagem
+ * estão íntegros.
+ *
+ * @param arquivo Caminho do arquivo de imagem.
+ * @param extensao Extensão normalizada (.png, .jpg ou .jpeg).
+ * @return true se as dimensões forem legíveis e estiverem dentro do limite.
+ */
 bool imagemDentroDe4K(const std::filesystem::path& arquivo,
                       const std::string& extensao) {
     std::ifstream entrada(arquivo, std::ios::binary);
@@ -129,9 +181,12 @@ bool imagemDentroDe4K(const std::filesystem::path& arquivo,
 
 } // namespace
 
+// Mantém uma cópia da sessão e uma referência ao motor fornecido externamente.
 ServicoContagem::ServicoContagem(const Sessao& sessao, MotorVisao& motor)
     : sessao_(sessao), motor_(motor) {}
 
+// As validações ocorrem antes de chamar o motor; a saída só é atualizada
+// após o retorno de sucesso de detect(). Veja a documentação no .h.
 bool ServicoContagem::countByImage(const Imagem& imagem, Contagem& contagem) {
     const std::string papel = sessao_.user().role();
     if (papel != "Gestor" && papel != "Funcionário" &&

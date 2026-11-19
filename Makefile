@@ -28,6 +28,8 @@ help:
 	@echo "  make run-test-historico               - executa os testes do historico"
 	@echo "  make compile-test-contagem            - compila os testes unitarios da contagem"
 	@echo "  make run-test-contagem                - executa os testes unitarios da contagem"
+	@echo "  make compile-contagem                 - compila a demonstracao da contagem de gado"
+	@echo "  make run-contagem IMAGEM=test/fundo-branco.jpeg          - executa a demonstracao da contagem de gado"
 	@echo "  make test-all                         - compila e executa todos os testes"
 
 # compila a aplicacao
@@ -62,10 +64,18 @@ compile-test-contagem:
 run-test-contagem:
 	./bin/test_contagem
 
+# compila a demonstracao da contagem de gado
+compile-contagem:
+	g++ $(FLAGS) $(SRC_CONTAGEM) test/demo_contagem_gado.cpp -o bin/demo_contagem_gado
+
+# roda a demonstracao da contagem de gado
+run-contagem:
+	./bin/demo_contagem_gado $(IMAGEM)
+
 # compila e roda todos os testes
 test-all: compile-test-pasto compile-test-historico compile-test-contagem \
 		  run-test-pasto run-test-historico run-test-contagem
-
+	$(MAKE) run-contagem IMAGEM=test/fundo-branco.jpeg
 
 
 # gera a documentacao Doxygen (precisa do doxygen instalado)

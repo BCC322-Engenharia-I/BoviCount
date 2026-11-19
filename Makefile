@@ -32,7 +32,7 @@ help:
 
 # compila a aplicacao
 compile:
-	g++ $(FLAGS) src/main.cpp $(SRC_BASE) $(SRC_PASTO) $(SRC_HISTORICO) -o bin/app
+	g++ $(FLAGS) src/main.cpp $(SRC_BASE) $(SRC_PASTO) $(SRC_HISTORICO) $(SRC_CONTAGEM) -o bin/app
 
 # roda a aplicacao
 run:

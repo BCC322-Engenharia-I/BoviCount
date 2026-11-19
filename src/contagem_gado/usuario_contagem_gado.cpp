@@ -1,7 +1,14 @@
+/**
+ * @file usuario_contagem_gado.cpp
+ * @brief Implementação dos dados de usuário e de sua sessão na contagem.
+ * @see usuario_contagem_gado.h
+ */
+
 #include "contagem_gado/usuario_contagem_gado.h"
 
 namespace contagem_gado {
 
+// Implementações dos construtores e acessores declarados no cabeçalho.
 Usuario::Usuario(int id, const std::string& papel, int idPropriedade)
     : id_(id), papel_(papel), idPropriedade_(idPropriedade) {}
 

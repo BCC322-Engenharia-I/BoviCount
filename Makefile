@@ -62,6 +62,13 @@ compile-test-contagem:
 run-test-contagem:
 	./bin/test_contagem
 
+
+
+
+# roda a demonstracao da contagem de gado
+run-contagem:
+	./bin/demo_contagem_gado $(IMAGEM)
+
 # compila e roda todos os testes
 test-all: compile-test-pasto compile-test-historico compile-test-contagem \
 		  run-test-pasto run-test-historico run-test-contagem

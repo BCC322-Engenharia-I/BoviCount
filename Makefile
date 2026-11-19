@@ -11,6 +11,8 @@ help:
 	@echo "  make run-test-pasto         - executa os testes do pasto"
 	@echo "  make compile-test-historico - compila os testes do historico (bin/test_historico)"
 	@echo "  make run-test-historico     - executa os testes do historico"
+	@echo "  make compile-contagem       - compila apenas o modulo de contagem de gado"
+	@echo "  make run-contagem IMAGEM=test/fundo-branco.jpeg - executa a demonstracao da contagem"
 
 # compila a aplicacao
 compile:
@@ -35,3 +37,12 @@ compile-test-historico:
 # roda os testes do historico
 run-test-historico:
 	./bin/test_historico
+
+# compila apenas o modulo de contagem de gado e seu programa de demonstracao
+compile-contagem:
+	mkdir -p bin
+	g++ -std=c++17 -Iinclude src/contagem_gado.cpp src/servico_contagem_gado.cpp src/usuario_contagem_gado.cpp test/demo_contagem_gado.cpp -o bin/demo_contagem_gado
+
+# executa somente a demonstracao de contagem de gado
+run-contagem:
+	./bin/demo_contagem_gado $(IMAGEM)

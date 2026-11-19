@@ -1,7 +1,14 @@
+/**
+ * @file contagem_gado.cpp
+ * @brief Implementação dos tipos de imagem, marcações e resultado da contagem.
+ * @see contagem_gado.h
+ */
+
 #include "contagem_gado.h"
 
 namespace contagem_gado {
 
+// Os construtores e acessores implementam os contratos documentados no .h.
 Imagem::Imagem() : caminho_("") {}
 Imagem::Imagem(const std::string& caminho) : caminho_(caminho) {}
 std::string Imagem::path() const { return caminho_; }

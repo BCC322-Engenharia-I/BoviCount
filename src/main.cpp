@@ -1,7 +1,7 @@
 #include <iostream>
-#include "Usuario.hpp"
-#include "Sessao.hpp"
-#include "ServicoPastos.hpp"
+#include "usuario/Usuario.hpp"
+#include "usuario/Sessao.hpp"
+#include "pasto/ServicoPastos.hpp"
 
 static const char* texto(bool v) { return v ? "true" : "false"; }
 

@@ -29,7 +29,7 @@ help:
 	@echo "  make compile-test-contagem            - compila os testes unitarios da contagem"
 	@echo "  make run-test-contagem                - executa os testes unitarios da contagem"
 	@echo "  make test-all                         - compila e executa todos os testes"
-	@echo "  make doc                              - gera a documentacao doxygen"
+	@echo "  make docs                              - gera a documentacao doxygen"
 
 # compila a aplicacao
 compile:

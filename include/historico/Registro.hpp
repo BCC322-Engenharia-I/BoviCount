@@ -1,32 +1,74 @@
+/**
+ * @file Registro.hpp
+ * @brief Declaração da classe Registro.
+ */
 #ifndef REGISTRO_HPP
 #define REGISTRO_HPP
 
 #include <string>
-#include "core/DataHora.hpp"
+#include "DataHora.hpp"
 
-// Uma contagem salva no historico.
+/**
+ * @class Registro
+ * @brief Uma contagem salva no histórico.
+ *
+ * Guarda quem contou, quando, em qual pasto, o total calculado pelo sistema, o
+ * total confirmado (ou corrigido) pelo usuário e a foto com as marcações. É
+ * criado pelo RepositorioHistorico quando o ServicoHistorico::save aceita uma
+ * contagem, e devolvido pelas consultas do ServicoHistorico.
+ *
+ * Um Registro padrão (id 0) significa "nenhum registro".
+ *
+ * @see ServicoHistorico
+ * @see RepositorioHistorico
+ */
 class Registro {
 public:
+    /** @brief Cria um registro vazio (id 0, totais 0, sem foto). */
     Registro();
+
+    /**
+     * @brief Cria um registro completo.
+     * @param id              Número que identifica o registro.
+     * @param dataHora        Momento em que a contagem foi salva.
+     * @param idOperador      Número do usuário que estava usando o sistema.
+     * @param idPasto         Número do pasto em que a contagem foi feita.
+     * @param totalAutomatico Total calculado pelo sistema.
+     * @param totalConfirmado Total confirmado (ou corrigido) pelo usuário.
+     * @param caminhoImagem   Caminho da foto com as marcações.
+     */
     Registro(int id, const DataHora& dataHora, int idOperador, int idPasto,
              int totalAutomatico, int totalConfirmado, const std::string& caminhoImagem);
 
+    /** @brief Devolve o número que identifica o registro (0 = registro vazio). */
     int id() const;
-    DataHora dateTime() const;      // quando a contagem foi salva
-    int operatorId() const;         // quem estava usando o sistema
-    int pastureId() const;          // em qual pasto foi feita
-    int automaticTotal() const;     // total calculado pelo sistema
-    int confirmedTotal() const;     // total confirmado (ou corrigido) pelo usuario
-    std::string imagePath() const;  // foto com as marcacoes, guardada no computador
+
+    /** @brief Devolve o momento em que a contagem foi salva. */
+    DataHora dateTime() const;
+
+    /** @brief Devolve o número do usuário que contou. */
+    int operatorId() const;
+
+    /** @brief Devolve o número do pasto em que a contagem foi feita. */
+    int pastureId() const;
+
+    /** @brief Devolve o total calculado pelo sistema. */
+    int automaticTotal() const;
+
+    /** @brief Devolve o total confirmado (ou corrigido) pelo usuário. */
+    int confirmedTotal() const;
+
+    /** @brief Devolve o caminho da foto com as marcações. */
+    std::string imagePath() const;
 
 private:
-    int idRegistro;
-    DataHora dataHora;
-    int idOperador;
-    int idPasto;
-    int totalAutomatico;
-    int totalConfirmado;
-    std::string caminhoImagem;
+    int idRegistro;            ///< Número do registro.
+    DataHora dataHora;         ///< Momento em que foi salvo.
+    int idOperador;            ///< Usuário que contou.
+    int idPasto;               ///< Pasto contado.
+    int totalAutomatico;       ///< Total calculado pelo sistema.
+    int totalConfirmado;       ///< Total confirmado pelo usuário.
+    std::string caminhoImagem; ///< Foto com as marcações.
 };
 
 #endif

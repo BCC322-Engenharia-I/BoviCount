@@ -1,3 +1,9 @@
+
+/**
+ * @file Imagem.cpp
+ * @brief Implementação da classe Imagem.
+ * @see Imagem.hpp
+ */
 #include "contagem/Imagem.hpp"
 
 Imagem::Imagem() : caminho() {}

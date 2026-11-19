@@ -1,3 +1,9 @@
+/**
+ * @file Data.cpp
+ * @brief Implementação da classe Data.
+ * @see Data.hpp
+ */
+
 #include "core/Data.hpp"
 
 Data::Data() : ano(0), mes(0), dia(0) {}

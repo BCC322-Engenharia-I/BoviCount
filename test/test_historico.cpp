@@ -1,3 +1,12 @@
+/**
+ * @file test_historico.cpp
+ * @brief Testes do ServicoHistorico (salvar, consultar e medir o erro da contagem).
+ *
+ * Os testes seguem os cenários de teste das seções 4.3 e 4.4 do projeto da API
+ * e usam os mesmos dados dos exemplos (Pasto Fundo, Funcionário João, outubro de 2026).
+ * Compile com `make compile-test-historico` e execute com `make run-test-historico`.
+ */
+
 #include <cassert>
 #include <cmath>
 #include <iostream>

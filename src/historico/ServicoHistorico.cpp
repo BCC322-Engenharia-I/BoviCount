@@ -1,5 +1,13 @@
-#include "historico/ServicoHistorico.hpp"
-#include "pasto/RepositorioPastos.hpp"
+/**
+ * @file ServicoHistorico.cpp
+ * @brief Implementação da classe ServicoHistorico.
+ *
+ * Também contém, em um espaço de nomes anônimo (invisíveis fora deste arquivo),
+ * as funções auxiliares de permissão (podeConsultar, podeSalvar) e de filtro (atende).
+ * @see ServicoHistorico.hpp
+ */
+#include "ServicoHistorico.hpp"
+#include "RepositorioPastos.hpp"
 
 namespace {
     const char* const PAPEL_GESTOR = "Gestor";

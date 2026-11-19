@@ -1,3 +1,9 @@
+/**
+ * @file Retangulo.cpp
+ * @brief Implementação da classe Retangulo.
+ * @see Retangulo.hpp
+ */
+
 #include "contagem/Retangulo.hpp"
 
 Retangulo::Retangulo(int x, int y, int largura, int altura)

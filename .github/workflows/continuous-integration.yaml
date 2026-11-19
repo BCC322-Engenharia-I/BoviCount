@@ -24,3 +24,15 @@ jobs:
               run: |
                 make compile-test-pasto
                 make run-test-pasto
+
+            # compila e roda os testes de contagem
+            - name: test contagem
+              run: |
+                make compile-test-contagem
+                make run-test-contagem
+
+            # compila e roda os testes do historico
+            - name: test historico
+              run: |
+                make compile-test-historico
+                make run-test-historico

@@ -1,10 +1,10 @@
 #include <cassert>
 #include <cmath>
 #include <iostream>
-#include "Usuario.hpp"
-#include "Sessao.hpp"
-#include "ServicoPastos.hpp"
-#include "ServicoHistorico.hpp"
+#include "usuario/Usuario.hpp"
+#include "usuario/Sessao.hpp"
+#include "pasto/ServicoPastos.hpp"
+#include "historico/ServicoHistorico.hpp"
 
 static void limpar() {
     RepositorioPastos::instancia().limpar();

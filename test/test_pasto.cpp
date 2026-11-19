@@ -1,8 +1,8 @@
 #include <cassert>
 #include <iostream>
-#include "Usuario.hpp"
-#include "Sessao.hpp"
-#include "ServicoPastos.hpp"
+#include "usuario/Usuario.hpp"
+#include "usuario/Sessao.hpp"
+#include "pasto/ServicoPastos.hpp"
 
 class RegraCapacidadeMaxima : public Regra<DadosPasto> {
 public:

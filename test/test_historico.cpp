@@ -1,3 +1,12 @@
+/**
+ * @file test_historico.cpp
+ * @brief Testes do ServicoHistorico (salvar, consultar e medir o erro da contagem).
+ *
+ * Os testes seguem os cenários de teste das seções 4.3 e 4.4 do projeto da API
+ * e usam os mesmos dados dos exemplos (Pasto Fundo, Funcionário João, outubro de 2026).
+ * Compile com `make compile-test-historico` e execute com `make run-test-historico`.
+ */
+
 #include <cassert>
 #include <cmath>
 #include <iostream>
@@ -6,16 +15,30 @@
 #include "pasto/ServicoPastos.hpp"
 #include "historico/ServicoHistorico.hpp"
 
+/**
+ * @brief Apaga os dados dos repositórios de pastos e de histórico.
+ *
+ * Chamada no início de cada teste para que um não interfira no outro.
+ */
 static void limpar() {
     RepositorioPastos::instancia().limpar();
     RepositorioHistorico::instancia().limpar();
 }
 
+/**
+ * @brief Compara dois números reais com tolerância.
+ */
 static bool quase(double a, double b) {
     return std::fabs(a - b) < 1e-9;
 }
 
-// Monta o resultado da analise de uma foto com 'animais' marcacoes.
+/**
+ * @brief Monta o resultado da análise de uma foto.
+ *
+ * @param caminho Caminho da foto analisada.
+ * @param animais Quantidade de marcações (animais) da contagem.
+ * @return Uma Contagem com a foto, @p animais marcações e 1,5 s de análise.
+ */
 static Contagem criarContagem(const std::string& caminho, int animais) {
     Colecao<Retangulo> caixas;
     for (int i = 0; i < animais; ++i) {
@@ -24,20 +47,37 @@ static Contagem criarContagem(const std::string& caminho, int animais) {
     return Contagem(Imagem(caminho), caixas, 1.5);
 }
 
-// Grava direto no repositorio uma contagem com data conhecida (o servico sempre
-// usa a data de hoje; aqui precisamos de datas fixas para testar os filtros).
+/**
+ * @brief Grava direto no repositório uma contagem com data conhecida.
+ *
+ * O servico sempre usa a data de hoje; os testes de período e de erro precisam de datas fixas.
+ * @param fazenda    Fazenda dona do registro.
+ * @param data       Dia em que a contagem foi salva.
+ * @param operador   Funcionário que contou.
+ * @param pasto      Pasto contado.
+ * @param calculado  Total calculado pelo sistema.
+ * @param confirmado Total confirmado pelo usuário.
+ */
 static void semear(int fazenda, const Data& data, int operador, int pasto,
                    int calculado, int confirmado) {
     RepositorioHistorico::instancia().inserir(DataHora(data, 9, 30, 0), operador, pasto,
                                               calculado, confirmado, "marcada.jpg", fazenda);
 }
 
+/**
+ * @brief Filtro de outubro de 2026 (todos os pastos e funcionários).
+ */
 static FiltroHistorico outubro() {
     return FiltroHistorico(Data(2026, 10, 1), Data(2026, 10, 31));
 }
 
 // ---------- Data e DataHora ----------
 
+/**
+ * @brief Testa a comparação de Data e os acessos de DataHora.
+ *
+ * Confere operator< e operator== (virada de mês e de ano), os getters de DataHora e DataHora::agora.
+ */
 static void testeData() {
     assert(Data(2026, 10, 1) < Data(2026, 10, 2));
     assert(Data(2026, 9, 30) < Data(2026, 10, 1));
@@ -56,7 +96,11 @@ static void testeData() {
 
 // ---------- Salvar ----------
 
-// Cenario 1: Funcionario Joao conta 185 e salva com 185 confirmado.
+/**
+ * @brief Cenário 1 de 4.3: o Funcionário João salva 185 contados e 185 confirmados.
+ *
+ * Confere todos os campos do Registro (quem contou, pasto, totais, foto e data de hoje) e que o Gestor enxerga o registro na consulta.
+ */
 static void testeSalvarFuncionario() {
     limpar();
     ServicoPastos gestor(Sessao(Usuario(1, "Gestor", 1)));
@@ -90,7 +134,11 @@ static void testeSalvarFuncionario() {
     assert(salvo.confirmedTotal() == 185);
 }
 
-// Cenario 2: o sistema contou 180, o usuario corrige para 200.
+/**
+ * @brief Cenário 2 de 4.3: o sistema contou 180 e o usuário corrige para 200.
+ *
+ * O histórico guarda 180 como calculado e 200 como confirmado.
+ */
 static void testeSalvarComCorrecao() {
     limpar();
     ServicoPastos gestor(Sessao(Usuario(1, "Gestor", 1)));
@@ -105,6 +153,9 @@ static void testeSalvarComCorrecao() {
     assert(r.confirmedTotal() == 200);
 }
 
+/**
+ * @brief Gestor e Administrador também podem salvar contagens.
+ */
 static void testeSalvarGestorEAdministrador() {
     limpar();
     ServicoPastos gestor(Sessao(Usuario(1, "Gestor", 1)));
@@ -122,7 +173,9 @@ static void testeSalvarGestorEAdministrador() {
     assert(b.operatorId() == 2);
 }
 
-// Pasto sem animais: total 0 e um resultado valido.
+/**
+ * @brief Foto sem animais: total 0 é um resultado válido e pode ser salvo.
+ */
 static void testeSalvarContagemZero() {
     limpar();
     ServicoPastos gestor(Sessao(Usuario(1, "Gestor", 1)));
@@ -137,7 +190,11 @@ static void testeSalvarContagemZero() {
     assert(r.confirmedTotal() == 0);
 }
 
-// Cenarios 3 e 4 (recusas): nada e salvo.
+/**
+ * @brief Cenário 3 de 4.3 e demais recusas do save: nada é salvo.
+ *
+ * Cobre pasto inexistente, pasto de outra fazenda, contagem sem foto, total confirmado negativo e papel desconhecido. Em todos os casos o Registro de saída continua vazio (id 0) e o histórico continua sem registros.
+ */
 static void testeSalvarRecusas() {
     limpar();
     ServicoPastos gestor(Sessao(Usuario(1, "Gestor", 1)));
@@ -180,7 +237,11 @@ static void testeSalvarRecusas() {
     assert(historicoGestor.query(FiltroHistorico(Data(2000, 1, 1), Data(2999, 12, 31))).size() == 0);
 }
 
-// Integracao com os pastos: pasto com contagem salva nao pode ser removido.
+/**
+ * @brief Integração com os pastos: pasto com contagem salva não pode ser removido.
+ *
+ * Um pasto sem contagens continua removível.
+ */
 static void testeSalvarBloqueiaRemocaoDoPasto() {
     limpar();
     ServicoPastos gestor(Sessao(Usuario(1, "Gestor", 1)));
@@ -198,7 +259,9 @@ static void testeSalvarBloqueiaRemocaoDoPasto() {
     assert(gestor.remove(brejo.id()));
 }
 
-// Uma recusa nao marca o pasto como "com contagens".
+/**
+ * @brief Um salvamento recusado não marca o pasto como "com contagens".
+ */
 static void testeRecusaNaoBloqueiaPasto() {
     limpar();
     ServicoPastos gestor(Sessao(Usuario(1, "Gestor", 1)));
@@ -214,7 +277,11 @@ static void testeRecusaNaoBloqueiaPasto() {
 
 // ---------- Consultar ----------
 
-// Cenario 2 (4.4): o Funcionario nao ve nada.
+/**
+ * @brief Cenário 2 de 4.4: o Funcionário não vê nenhuma informação.
+ *
+ * query devolve lista vazia e errorRate devolve false sem alterar a taxa.
+ */
 static void testeConsultaFuncionario() {
     limpar();
     semear(1, Data(2026, 10, 6), 5, 1, 185, 185);
@@ -227,6 +294,11 @@ static void testeConsultaFuncionario() {
     assert(quase(taxa, -1.0));
 }
 
+/**
+ * @brief Filtros de query: período, pasto, funcionário e fazenda.
+ *
+ * Confere que o primeiro e o último dia do período são incluídos, que dias fora do período e registros de outra fazenda não aparecem e que um período sem contagens devolve lista vazia.
+ */
 static void testeConsultaFiltros() {
     limpar();
     semear(1, Data(2026, 10, 1), 5, 1, 185, 185);   // primeiro dia do periodo
@@ -265,6 +337,9 @@ static void testeConsultaFiltros() {
     assert(outra.query(outubro()).iterator().next().operatorId() == 9);
 }
 
+/**
+ * @brief O Administrador consulta o histórico e o erro como o Gestor.
+ */
 static void testeConsultaAdministrador() {
     limpar();
     semear(1, Data(2026, 10, 1), 5, 1, 185, 185);
@@ -278,6 +353,9 @@ static void testeConsultaAdministrador() {
     assert(quase(taxa, 5.0));
 }
 
+/**
+ * @brief Um papel desconhecido não consulta o histórico nem o erro.
+ */
 static void testeConsultaPapelDesconhecido() {
     limpar();
     semear(1, Data(2026, 10, 1), 5, 1, 185, 185);
@@ -290,7 +368,9 @@ static void testeConsultaPapelDesconhecido() {
 
 // ---------- Erro da contagem ----------
 
-// Cenario 1 (4.4): 185/185 e 180/200 => 5%.
+/**
+ * @brief Cenário 1 de 4.4: 185/185 e 180/200 resultam em erro de 5%.
+ */
 static void testeErroCenarioPrincipal() {
     limpar();
     semear(1, Data(2026, 10, 6), 5, 1, 185, 185);
@@ -304,7 +384,11 @@ static void testeErroCenarioPrincipal() {
     assert(quase(taxa, 5.0));
 }
 
-// Cenario 3 (4.4): sem contagens no periodo, nao calcula o erro.
+/**
+ * @brief Cenário 3 de 4.4: sem contagens no período, o erro não é calculado.
+ *
+ * errorRate devolve false e a taxa informada não é alterada.
+ */
 static void testeErroSemContagens() {
     limpar();
     ServicoHistorico gestor(Sessao(Usuario(1, "Gestor", 1)));
@@ -319,7 +403,11 @@ static void testeErroSemContagens() {
     assert(quase(taxa, -1.0));
 }
 
-// A diferenca conta nos dois sentidos (calculou a mais ou a menos).
+/**
+ * @brief O erro conta a diferença nos dois sentidos.
+ *
+ * Calcular a mais ou a menos pesa igual: 220/200 e 180/200 dão 10% cada.
+ */
 static void testeErroDiferencaAbsoluta() {
     limpar();
     semear(1, Data(2026, 10, 1), 5, 1, 220, 200);   // 10% a mais
@@ -331,7 +419,11 @@ static void testeErroDiferencaAbsoluta() {
     assert(quase(taxa, 10.0));
 }
 
-// Contagens com total confirmado 0 ficam fora do calculo.
+/**
+ * @brief Contagens com total confirmado 0 ficam fora do cálculo do erro.
+ *
+ * Elas continuam aparecendo em query. Se só houver contagens assim, errorRate devolve false.
+ */
 static void testeErroIgnoraConfirmadoZero() {
     limpar();
     semear(1, Data(2026, 10, 1), 5, 1, 3, 0);       // fora do calculo
@@ -351,7 +443,9 @@ static void testeErroIgnoraConfirmadoZero() {
     assert(quase(taxa2, -1.0));
 }
 
-// O erro usa o mesmo filtro da consulta e so a fazenda do usuario.
+/**
+ * @brief O erro usa o mesmo filtro da consulta e só a fazenda do usuário.
+ */
 static void testeErroRespeitaFiltroEFazenda() {
     limpar();
     semear(1, Data(2026, 10, 1), 5, 1, 185, 185);   // 0%
@@ -373,7 +467,11 @@ static void testeErroRespeitaFiltroEFazenda() {
     assert(gestor.errorRate(FiltroHistorico(Data(2026, 10, 1), Data(2026, 10, 31), 0, 9), taxa) == false);
 }
 
-// Fluxo completo: Gestor cadastra, Funcionario salva, Gestor consulta o erro.
+/**
+ * @brief Fluxo completo (3.3): o Gestor cadastra, o Funcionário salva, o Gestor consulta o erro.
+ *
+ * Termina conferindo que o pasto com contagens não pode mais ser removido.
+ */
 static void testeFluxoCompleto() {
     limpar();
     ServicoPastos gestor(Sessao(Usuario(1, "Gestor", 1)));
@@ -397,6 +495,13 @@ static void testeFluxoCompleto() {
     assert(!gestor.remove(fundo.id()));
 }
 
+/**
+ * @brief Executa todos os testes do histórico.
+ *
+ * Usa assert: se algum teste falhar, o programa é interrompido.
+ *
+ * @return 0 quando todos os testes passam.
+ */
 int main() {
     std::cout << "===== TESTE DE HISTORICO =====" << std::endl;
     testeData();

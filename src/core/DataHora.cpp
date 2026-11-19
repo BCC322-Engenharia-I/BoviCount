@@ -1,3 +1,9 @@
+/**
+ * @file DataHora.cpp
+ * @brief Implementação da classe DataHora.
+ * @see DataHora.hpp
+ */
+
 #include "core/DataHora.hpp"
 #include <ctime>
 

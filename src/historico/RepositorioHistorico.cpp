@@ -1,3 +1,9 @@
+/**
+ * @file RepositorioHistorico.cpp
+ * @brief Implementação da classe RepositorioHistorico.
+ * @see RepositorioHistorico.hpp
+ */
+
 #include "historico/RepositorioHistorico.hpp"
 
 RepositorioHistorico::RepositorioHistorico() : entradas(), proximoId(1) {}

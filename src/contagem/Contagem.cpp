@@ -1,3 +1,9 @@
+/**
+ * @file Contagem.cpp
+ * @brief Implementação da classe Contagem.
+ * @see Contagem.hpp
+ */
+
 #include "contagem/Contagem.hpp"
 
 Contagem::Contagem() : foto(), marcacoes(), segundos(0.0) {}

@@ -65,3 +65,9 @@ run-test-contagem:
 # compila e roda todos os testes
 test-all: compile-test-pasto compile-test-historico compile-test-contagem \
 		  run-test-pasto run-test-historico run-test-contagem
+
+
+
+# gera a documentacao Doxygen (precisa do doxygen instalado)
+docs:
+	doxygen Doxyfile

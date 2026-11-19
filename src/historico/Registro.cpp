@@ -1,3 +1,9 @@
+/**
+ * @file Registro.cpp
+ * @brief Implementação da classe Registro.
+ * @see Registro.hpp
+ */
+
 #include "historico/Registro.hpp"
 
 Registro::Registro()

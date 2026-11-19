@@ -1,16 +1,33 @@
+/**
+ * @file FiltroPasto.hpp
+ * @brief Declaração da classe FiltroPasto.
+ */
 #ifndef FILTRO_PASTO_H
 #define FILTRO_PASTO_H
 
 #include <string>
 
-// Criterio para buscar pastos: pelo nome (vazio = todos os pastos).
+/**
+ * @brief Critério para buscar pastos.
+ *
+ * Por enquanto o único critério é o nome. Um nome vazio significa
+ * "todos os pastos".
+ *
+ * @see ServicoPastos::query
+ */
 class FiltroPasto {
 private:
-    std::string nome;
+    std::string nome;   ///< Texto buscado no nome do pasto (vazio = todos).
 
 public:
+    /**
+     * @brief Cria um filtro por nome.
+     * @param nome Texto a procurar no nome do pasto. O padrão, vazio,
+     *             não restringe a busca.
+     */
     FiltroPasto(const std::string& nome = "") : nome(nome) {}
 
+    /** @brief Texto buscado no nome do pasto (vazio = todos). */
     std::string name() const { return nome; }
 };
 

@@ -1,16 +1,32 @@
+/**
+ * @file ServicoPastos.cpp
+ * @brief Implementação da classe ServicoPastos.
+ */
 #include "pasto/ServicoPastos.hpp"
 #include <cctype>
 
 namespace {
+    /** @brief Papel com permissão para administrar pastos. */
     const char* const PAPEL_GESTOR = "Gestor";
+    /** @brief Papel que apenas consulta pastos. */
     const char* const PAPEL_FUNCIONARIO = "Funcionário";
+    /** @brief Papel com permissão para administrar pastos. */
     const char* const PAPEL_ADMINISTRADOR = "Administrador";
 
-    // Texto vazio ou so com espacos conta como nao preenchido.
+    /**
+     * @brief Verifica se um texto está "não preenchido".
+     * @param texto Texto a verificar.
+     * @return @c true se o texto é vazio ou contém só espaços, tabulações ou quebras de linha.
+     */
     bool vazio(const std::string& texto) {
         return texto.find_first_not_of(" \t\r\n") == std::string::npos;
     }
 
+    /**
+     * @brief Converte um texto para minúsculas (caracteres ASCII).
+     * @param texto Texto original.
+     * @return Cópia do texto em minúsculas.
+     */
     std::string minusculo(const std::string& texto) {
         std::string r = texto;
         for (std::size_t i = 0; i < r.size(); ++i) {
@@ -19,20 +35,30 @@ namespace {
         return r;
     }
 
-    // Gestor e Administrador administram os pastos.
+    /**
+     * @brief Gestor e Administrador administram os pastos.
+     * @param u Usuário a verificar.
+     * @return @c true se o papel é Gestor ou Administrador.
+     */
     bool podeAdministrar(const Usuario& u) {
         return u.role() == PAPEL_GESTOR || u.role() == PAPEL_ADMINISTRADOR;
     }
 
-    // Qualquer papel conhecido pode consultar.
+    /**
+     * @brief Qualquer papel conhecido pode consultar.
+     * @param u Usuário a verificar.
+     * @return @c true se o papel é Gestor, Administrador ou Funcionário.
+     */
     bool podeConsultar(const Usuario& u) {
         return podeAdministrar(u) || u.role() == PAPEL_FUNCIONARIO;
     }
 }
 
+/** @copydoc ServicoPastos::ServicoPastos(const Sessao&) */
 ServicoPastos::ServicoPastos(const Sessao& sessao)
     : sessao(sessao), repositorio(RepositorioPastos::instancia()), regras() {}
 
+/** @copydoc ServicoPastos::dadosValidos() */
 bool ServicoPastos::dadosValidos(const DadosPasto& dados, int idIgnorado) const {
     // dados completos
     if (vazio(dados.name()) || vazio(dados.location()) || dados.capacity() <= 0) {
@@ -53,6 +79,7 @@ bool ServicoPastos::dadosValidos(const DadosPasto& dados, int idIgnorado) const 
     return true;
 }
 
+/** @copydoc ServicoPastos::create() */
 bool ServicoPastos::create(const DadosPasto& dados, Pasto& pasto) {
     const Usuario& usuario = sessao.user();
 
@@ -67,6 +94,7 @@ bool ServicoPastos::create(const DadosPasto& dados, Pasto& pasto) {
     return true;
 }
 
+/** @copydoc ServicoPastos::query() */
 Colecao<Pasto> ServicoPastos::query(const FiltroPasto& filtro) {
     Colecao<Pasto> resultado;
     const Usuario& usuario = sessao.user();
@@ -87,6 +115,7 @@ Colecao<Pasto> ServicoPastos::query(const FiltroPasto& filtro) {
     return resultado;
 }
 
+/** @copydoc ServicoPastos::update() */
 bool ServicoPastos::update(int idPasto, const DadosPasto& dados) {
     const Usuario& usuario = sessao.user();
 
@@ -106,6 +135,7 @@ bool ServicoPastos::update(int idPasto, const DadosPasto& dados) {
     return repositorio.atualizar(idPasto, dados);
 }
 
+/** @copydoc ServicoPastos::remove() */
 bool ServicoPastos::remove(int idPasto) {
     const Usuario& usuario = sessao.user();
 
@@ -126,6 +156,7 @@ bool ServicoPastos::remove(int idPasto) {
     return repositorio.remover(idPasto);
 }
 
+/** @copydoc ServicoPastos::add() */
 void ServicoPastos::add(const Regra<DadosPasto>& regra) {
     regras.push_back(&regra);
 }

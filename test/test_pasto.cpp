@@ -1,14 +1,34 @@
+/**
+ * @file test_pasto.cpp
+ * @brief Testes de aceitação do módulo de pastos (ServicoPastos).
+ *
+ * Cada função @c teste* cobre um cenário de cadastro, consulta, edição ou
+ * remoção e usa @c assert: a falha de qualquer verificação aborta o programa.
+ * O programa imprime "test_pasto: OK" ao final se todos os cenários passarem.
+ */
 #include <cassert>
 #include <iostream>
 #include "usuario/Usuario.hpp"
 #include "usuario/Sessao.hpp"
 #include "pasto/ServicoPastos.hpp"
 
+/**
+ * @brief Regra de exemplo de uma fazenda: capacidade máxima de 500 animais.
+ *
+ * Usada em testeRegraDaFazenda() para verificar que regras próprias valem
+ * no cadastro e na edição.
+ */
 class RegraCapacidadeMaxima : public Regra<DadosPasto> {
 public:
+    /**
+     * @brief Aceita dados cuja capacidade não passe de 500.
+     * @param d Dados do pasto a avaliar.
+     * @return @c true se a capacidade é menor ou igual a 500.
+     */
     bool allows(const DadosPasto& d) const { return d.capacity() <= 500; }
 };
 
+/** @brief Esvazia o repositório compartilhado, isolando um teste do outro. */
 static void limpar() {
     RepositorioPastos::instancia().limpar();
 }
@@ -16,6 +36,11 @@ static void limpar() {
 // ---------- Cadastrar ----------
 
 // Cenario 1: Gestor cadastra "Pasto Fundo".
+/**
+ * @brief Cenário 1: o Gestor cadastra "Pasto Fundo".
+ *
+ * Verifica id gerado, dados gravados, fazenda do pasto e que ele aparece na consulta.
+ */
 static void testeCadastroGestor() {
     limpar();
     ServicoPastos pastos(Sessao(Usuario(1, "Gestor", 1)));
@@ -32,6 +57,7 @@ static void testeCadastroGestor() {
     assert(lista.size() == 1);
 }
 
+/** @brief O Administrador também pode cadastrar pastos. */
 static void testeCadastroAdministrador() {
     limpar();
     ServicoPastos pastos(Sessao(Usuario(2, "Administrador", 1)));
@@ -41,6 +67,12 @@ static void testeCadastroAdministrador() {
 }
 
 // Cenario 2: nome repetido e capacidade 0 sao recusados.
+/**
+ * @brief Cenário 2: recusas no cadastro.
+ *
+ * Nome repetido, capacidade zero ou negativa, nome só com espaços e
+ * localização vazia são recusados, sem criar nada nem alterar o pasto de saída.
+ */
 static void testeCadastroRecusas() {
     limpar();
     ServicoPastos pastos(Sessao(Usuario(1, "Gestor", 1)));
@@ -69,6 +101,7 @@ static void testeCadastroRecusas() {
 }
 
 // O nome so precisa ser unico dentro da fazenda.
+/** @brief O nome só precisa ser único dentro da fazenda: duas fazendas podem repetir nomes. */
 static void testeNomeEmOutraFazenda() {
     limpar();
     ServicoPastos fazenda1(Sessao(Usuario(1, "Gestor", 1)));
@@ -82,6 +115,11 @@ static void testeNomeEmOutraFazenda() {
 }
 
 // Regra propria da fazenda (secao 2.4), valendo no cadastro e na edicao.
+/**
+ * @brief Regra própria da fazenda (seção 2.4), valendo no cadastro e na edição.
+ *
+ * Usa RegraCapacidadeMaxima (limite de 500).
+ */
 static void testeRegraDaFazenda() {
     limpar();
     ServicoPastos pastos(Sessao(Usuario(1, "Gestor", 1)));
@@ -99,6 +137,13 @@ static void testeRegraDaFazenda() {
 
 // ---------- Consultar ----------
 
+/**
+ * @brief Consulta de pastos.
+ *
+ * Filtro vazio devolve todos os pastos da fazenda (nunca os de outra);
+ * a busca por nome é parcial e sem diferenciar maiúsculas; nada
+ * encontrado resulta em lista vazia.
+ */
 static void testeConsulta() {
     limpar();
     ServicoPastos gestor(Sessao(Usuario(1, "Gestor", 1)));
@@ -129,6 +174,9 @@ static void testeConsulta() {
 }
 
 // Cenario 5: Funcionario nao cadastra, mas consulta normalmente.
+/**
+ * @brief Cenário 5: o Funcionário não cadastra, edita nem remove, mas consulta normalmente.
+ */
 static void testeFuncionario() {
     limpar();
     ServicoPastos gestor(Sessao(Usuario(1, "Gestor", 1)));
@@ -152,6 +200,12 @@ static void testeFuncionario() {
 // ---------- Editar ----------
 
 // Cenarios 3 e do passo 5 da execucao: altera capacidade; capacidade 0 e recusada.
+/**
+ * @brief Cenário 3 e passo 5 da execução: edição de pastos.
+ *
+ * Altera a capacidade; capacidade 0, nome de outro pasto, campos vazios e
+ * pasto inexistente são recusados. O nome do próprio pasto não conta como repetido.
+ */
 static void testeEdicao() {
     limpar();
     ServicoPastos pastos(Sessao(Usuario(1, "Gestor", 1)));
@@ -181,6 +235,7 @@ static void testeEdicao() {
     assert(!pastos.update(999, DadosPasto("Qualquer", "Lugar", 10)));
 }
 
+/** @brief Um Gestor não edita nem remove pastos de outra fazenda. */
 static void testeEdicaoOutraFazenda() {
     limpar();
     ServicoPastos fazenda1(Sessao(Usuario(1, "Gestor", 1)));
@@ -195,6 +250,12 @@ static void testeEdicaoOutraFazenda() {
 // ---------- Remover ----------
 
 // Cenario 4: pasto com contagem salva nao pode ser removido.
+/**
+ * @brief Cenário 4: remoção de pastos.
+ *
+ * Pasto com contagem salva não pode ser removido; pasto sem contagens
+ * pode; pasto inexistente (ou já removido) é recusado.
+ */
 static void testeRemocao() {
     limpar();
     ServicoPastos pastos(Sessao(Usuario(1, "Gestor", 1)));
@@ -218,6 +279,10 @@ static void testeRemocao() {
     assert(!pastos.remove(brejo.id()));
 }
 
+/**
+ * @brief Executa todos os cenários de teste.
+ * @return 0 se todos passarem (caso contrário o @c assert aborta o programa).
+ */
 int main() {
     std::cout << "===== TESTE DE PASTO =====" << std::endl;
     testeCadastroGestor();

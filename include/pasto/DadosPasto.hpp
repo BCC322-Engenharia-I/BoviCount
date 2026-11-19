@@ -1,21 +1,31 @@
-#ifndef DADOS_PASTO_H
-#define DADOS_PASTO_H
+/**
+ * @file Pasto.cpp
+ * @brief Implementação da classe Pasto.
+ */
+#include "pasto/Pasto.hpp"
 
-#include <string>
+/** @copydoc Pasto::Pasto() */
+Pasto::Pasto() : idPasto(0), nome(), localizacao(), capacidade(0), idPropriedade(0) {}
 
-// Dados que o Gestor informa ao cadastrar ou editar um pasto.
-class DadosPasto {
-private:
-    std::string nome;
-    std::string localizacao;
-    int capacidade;
+/** @copydoc Pasto::Pasto(int, const DadosPasto&, int) */
+Pasto::Pasto(int id, const DadosPasto& dados, int idPropriedade)
+    : idPasto(id),
+      nome(dados.name()),
+      localizacao(dados.location()),
+      capacidade(dados.capacity()),
+      idPropriedade(idPropriedade) {}
 
-public:
-    DadosPasto(const std::string& nome, const std::string& localizacao, int capacidade);
+/** @copydoc Pasto::id() const */
+int Pasto::id() const { return idPasto; }
 
-    std::string name() const;
-    std::string location() const;
-    int capacity() const;   // maximo de animais que o pasto comporta
-};
+/** @copydoc Pasto::name() const */
+std::string Pasto::name() const { return nome; }
 
-#endif // DADOS_PASTO_H
+/** @copydoc Pasto::location() const */
+std::string Pasto::location() const { return localizacao; }
+
+/** @copydoc Pasto::capacity() const */
+int Pasto::capacity() const { return capacidade; }
+
+/** @copydoc Pasto::propertyId() const */
+int Pasto::propertyId() const { return idPropriedade; }

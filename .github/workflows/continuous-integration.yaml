@@ -36,3 +36,9 @@ jobs:
               run: |
                 make compile-test-historico
                 make run-test-historico
+
+            # compila e roda os testes funcionais
+            - name: test funcional
+              run: |
+                make compile-test-funcional
+                make run-test-funcional

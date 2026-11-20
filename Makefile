@@ -28,6 +28,8 @@ help:
 	@echo "  make run-test-historico               - executa os testes do historico"
 	@echo "  make compile-test-contagem            - compila os testes unitarios da contagem"
 	@echo "  make run-test-contagem                - executa os testes unitarios da contagem"
+	@echo "  make compile-test-funcional           - compila os testes funcionais"
+	@echo "  make run-test-funcional               - executa os testes funcionais"
 	@echo "  make test-all                         - compila e executa todos os testes"
 	@echo "  make docs                              - gera a documentacao doxygen"
 
@@ -63,9 +65,17 @@ compile-test-contagem:
 run-test-contagem:
 	./bin/test_contagem
 
+# compila os testes funcionais (precisam do bin/app)
+compile-test-funcional: compile
+	g++ $(FLAGS) test/test_funcional.cpp -o bin/test_funcional
+
+# roda os testes funcionais
+run-test-funcional:
+	./bin/test_funcional
+
 # compila e roda todos os testes
-test-all: compile-test-pasto compile-test-historico compile-test-contagem \
-		  run-test-pasto run-test-historico run-test-contagem
+test-all: compile-test-pasto compile-test-historico compile-test-contagem compile-test-funcional \
+		  run-test-pasto run-test-historico run-test-contagem run-test-funcional
 
 # gera a documentacao Doxygen (precisa do doxygen instalado)
 docs:

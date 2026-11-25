@@ -2,3 +2,6 @@ bin/*
 !bin/placeholder
 doc/*
 !doc/placeholder
+*.jpeg
+*.jpg
+*.png

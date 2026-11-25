@@ -5,6 +5,10 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "usuario/Usuario.hpp"
+#include "usuario/Sessao.hpp"
+#include "contagem/Imagem.hpp"
+#include "contagem/Contagem.hpp"
 #include "contagem_gado/servico_contagem_gado.h"
 
 using namespace contagem_gado;

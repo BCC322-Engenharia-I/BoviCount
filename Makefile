@@ -1,16 +1,19 @@
 # compartilhado por todas as funcionalidades
 SRC_BASE = src/usuario/Usuario.cpp src/usuario/Sessao.cpp
 
+# modelo da contagem (Imagem, Retangulo, Contagem): usado por historico e contagem_gado
+SRC_MODELO_CONTAGEM = src/contagem/Imagem.cpp src/contagem/Retangulo.cpp src/contagem/Contagem.cpp
+
 # gestao de pastos
 SRC_PASTO = src/pasto/DadosPasto.cpp src/pasto/Pasto.cpp src/pasto/RepositorioPastos.cpp src/pasto/ServicoPastos.cpp
 
-# historico de contagens 
+# historico de contagens
 SRC_HISTORICO = src/core/Data.cpp src/core/DataHora.cpp \
-                src/contagem/Imagem.cpp src/contagem/Retangulo.cpp src/contagem/Contagem.cpp \
+                $(SRC_MODELO_CONTAGEM) \
                 src/historico/Registro.cpp src/historico/FiltroHistorico.cpp \
                 src/historico/RepositorioHistorico.cpp src/historico/ServicoHistorico.cpp
 
-# contagem de gado
+# contagem de gado (servico + motor)
 SRC_CONTAGEM = src/contagem_gado/contagem_gado.cpp src/contagem_gado/servico_contagem_gado.cpp \
                src/contagem_gado/usuario_contagem_gado.cpp
 

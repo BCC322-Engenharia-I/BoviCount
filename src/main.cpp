@@ -22,12 +22,12 @@ public:
 
     MotorSimulado() : animais(0) {}
 
-    bool detect(const contagem_gado::Imagem& imagem, contagem_gado::Contagem& contagem) {
-        contagem_gado::Colecao<contagem_gado::Retangulo> caixas;
+    bool detect(const Imagem& imagem, Contagem& contagem) {
+        Colecao<Retangulo> caixas;
         for (int i = 0; i < animais; ++i) {
-            caixas.add(contagem_gado::Retangulo(i * 10, i * 10, 10, 10));
+            caixas.add(Retangulo(i * 10, i * 10, 10, 10));
         }
-        contagem = contagem_gado::Contagem(imagem, caixas, 0.5);
+        contagem = Contagem(imagem, caixas, 0.5);
         return true;
     }
 };
@@ -35,7 +35,7 @@ public:
 // ---------- Estado do programa ----------
 Usuario usuarioAtual;                      // quem esta logado
 MotorSimulado motor;                       // motor de IA simulado
-contagem_gado::Contagem ultimaContagem;    // resultado da ultima foto analisada
+Contagem ultimaContagem;                   // resultado da ultima foto analisada
 bool temUltimaContagem = false;            // ja houve alguma contagem?
 
 // ---------- Leitura de dados ----------
@@ -204,11 +204,11 @@ void contarGado() {
     string caminho = lerTexto("Caminho da imagem (jpeg, jpg ou png): ");
     motor.animais = lerInt("Quantos animais o motor simulado deve detectar? ");
 
-    contagem_gado::Usuario u(usuarioAtual.id(), usuarioAtual.role(), usuarioAtual.propertyId());
-    contagem_gado::ServicoContagem servico(contagem_gado::Sessao(u), motor);
+    Sessao sessao(usuarioAtual);
+    contagem_gado::ServicoContagem servico(sessao, motor);
 
-    contagem_gado::Contagem resultado;
-    bool ok = servico.countByImage(contagem_gado::Imagem(caminho), resultado);
+    Contagem resultado;
+    bool ok = servico.countByImage(Imagem(caminho), resultado);
     mostrarResultado(ok);
 
     if (ok) {
@@ -236,20 +236,12 @@ void salvarContagem() {
         return;
     }
 
-    // A contagem do modulo de IA e de outro namespace; aqui montamos a
-    // Contagem usada pelo historico com o mesmo total e a mesma foto.
-    Colecao<Retangulo> caixas;
-    for (int i = 0; i < ultimaContagem.total(); ++i) {
-        caixas.add(Retangulo(0, 0, 0, 0));
-    }
-    Contagem paraSalvar(Imagem(ultimaContagem.image().path()), caixas,
-                        ultimaContagem.processingSeconds());
-
     Sessao sessao(usuarioAtual);
     ServicoHistorico historico(sessao);
     Registro r;
-    bool ok = historico.save(paraSalvar, idPasto, confirmado, r);
+    bool ok = historico.save(ultimaContagem, idPasto, confirmado, r);
     mostrarResultado(ok);
+    
     if (ok) {
         cout << "  Registro " << r.id() << " salvo: calculado "
              << r.automaticTotal() << ", confirmado " << r.confirmedTotal() << endl;

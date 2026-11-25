@@ -6,7 +6,7 @@
 #ifndef CONTAGEM_GADO_SERVICOS_H
 #define CONTAGEM_GADO_SERVICOS_H
 
-#include "contagem_gado/usuario_contagem_gado.h"
+#include "usuario/Sessao.hpp"
 #include "contagem_gado/contagem_gado.h"
 
 namespace contagem_gado {
@@ -30,15 +30,12 @@ namespace contagem_gado {
  * @par Exemplo
  * @code
  * // motor deve ser uma implementação concreta de MotorVisao.
- * contagem_gado::Usuario u(1, "Gestor", 10);
- * contagem_gado::Sessao sessao(u);
+ * Usuario u(1, "Gestor", 10);
+ * Sessao sessao(u);
  * contagem_gado::ServicoContagem servico(sessao, motor);
- * contagem_gado::Contagem resultado;
- * bool ok = servico.countByImage(contagem_gado::Imagem("pasto.jpg"), resultado);
+ * Contagem resultado;
+ * bool ok = servico.countByImage(Imagem("pasto.jpg"), resultado);
  * @endcode
- * @see MotorVisao
- * @see Sessao
- * @see Contagem
  */
 class ServicoContagem {
 private:

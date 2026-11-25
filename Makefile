@@ -14,8 +14,7 @@ SRC_HISTORICO = src/core/Data.cpp src/core/DataHora.cpp \
                 src/historico/RepositorioHistorico.cpp src/historico/ServicoHistorico.cpp
 
 # contagem de gado (servico + motor)
-SRC_CONTAGEM = src/contagem_gado/contagem_gado.cpp src/contagem_gado/servico_contagem_gado.cpp \
-               src/contagem_gado/usuario_contagem_gado.cpp
+SRC_CONTAGEM = src/contagem_gado/servico_contagem_gado.cpp
 
 # flags de compilacao
 FLAGS = -Iinclude -std=c++17
@@ -62,7 +61,7 @@ run-test-historico:
 
 # compila os testes da contagem de gado
 compile-test-contagem:
-	g++ $(FLAGS) $(SRC_CONTAGEM) test/test_contagem.cpp -o bin/test_contagem
+	g++ $(FLAGS) $(SRC_BASE) $(SRC_MODELO_CONTAGEM) $(SRC_CONTAGEM) test/test_contagem.cpp -o bin/test_contagem
 
 # roda os testes da contagem de gado
 run-test-contagem:

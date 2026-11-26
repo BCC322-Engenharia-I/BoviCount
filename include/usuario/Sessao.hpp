@@ -21,11 +21,23 @@ private:
     Usuario usuario;    ///< Usuário autenticado nesta sessão (guardado por cópia).
 
 public:
+    /** @brief Construtor padrão proibido: uma sessão sempre pertence a um usuário. */
+    Sessao() = delete;
+
     /**
      * @brief Abre uma sessão para o usuário informado.
      * @param usuario Usuário que está usando o sistema.
      */
     explicit Sessao(const Usuario& usuario);
+
+    /** @brief Construtor de cópia: copia o usuário de outra Sessao. */
+    Sessao(const Sessao&) = default;
+
+    /** @brief Atribuição por cópia: copia o usuário de outra Sessao. */
+    Sessao& operator=(const Sessao&) = default;
+
+    /** @brief Destrutor. */
+    ~Sessao() = default;
 
     /**
      * @brief Usuário da sessão.

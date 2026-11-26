@@ -27,6 +27,15 @@ public:
      */
     FiltroPasto(const std::string& nome = "") : nome(nome) {}
 
+    /** @brief Construtor de cópia: copia o nome buscado de outro filtro. */
+    FiltroPasto(const FiltroPasto&) = default;
+
+    /** @brief Atribuição por cópia: copia o nome buscado de outro filtro. */
+    FiltroPasto& operator=(const FiltroPasto&) = default;
+
+    /** @brief Destrutor. */
+    ~FiltroPasto() = default;
+
     /** @brief Texto buscado no nome do pasto (vazio = todos). */
     std::string name() const { return nome; }
 };

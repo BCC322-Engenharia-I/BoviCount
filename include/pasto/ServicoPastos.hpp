@@ -65,6 +65,15 @@ public:
      */
     explicit ServicoPastos(const Sessao& sessao);
 
+    /** @brief Cópia proibida: o serviço está ligado ao repositório compartilhado, à sua sessão e a regras não proprietárias. */
+    ServicoPastos(const ServicoPastos&) = delete;
+
+    /** @brief Atribuição proibida: o serviço está ligado ao repositório compartilhado, à sua sessão e a regras não proprietárias. */
+    ServicoPastos& operator=(const ServicoPastos&) = delete;
+
+    /** @brief Destrutor. */
+    ~ServicoPastos() = default;
+
     /**
      * @brief CADASTRAR um pasto.
      *

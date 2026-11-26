@@ -39,6 +39,15 @@ public:
      */
     Data(int ano, int mes, int dia);
 
+    /** @brief Construtor de cópia: copia ano, mês e dia de outra Data. */
+    Data(const Data&) = default;
+
+    /** @brief Atribuição por cópia: copia ano, mês e dia de outra Data. */
+    Data& operator=(const Data&) = default;
+
+    /** @brief Destrutor. */
+    ~Data() = default;
+
     /** @brief Devolve o ano. */
     int year() const;
 

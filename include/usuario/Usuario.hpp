@@ -38,6 +38,15 @@ public:
      */
     Usuario(int id, const std::string& papel, int idPropriedade);
 
+    /** @brief Construtor de cópia: copia id, papel e propriedade de outro Usuario. */
+    Usuario(const Usuario&) = default;
+
+    /** @brief Atribuição por cópia: copia id, papel e propriedade de outro Usuario. */
+    Usuario& operator=(const Usuario&) = default;
+
+    /** @brief Destrutor. */
+    ~Usuario() = default;
+
     /**
      * @brief Número que identifica o usuário.
      * @return O identificador do usuário.

@@ -41,6 +41,15 @@ public:
     Registro(int id, const DataHora& dataHora, int idOperador, int idPasto,
              int totalAutomatico, int totalConfirmado, const std::string& caminhoImagem);
 
+    /** @brief Construtor de cópia: copia todos os campos de outro Registro. */
+    Registro(const Registro&) = default;
+
+    /** @brief Atribuição por cópia: copia todos os campos de outro Registro. */
+    Registro& operator=(const Registro&) = default;
+
+    /** @brief Destrutor. */
+    ~Registro() = default;
+
     /** @brief Devolve o número que identifica o registro (0 = registro vazio). */
     int id() const;
 
@@ -63,6 +72,8 @@ public:
     std::string imagePath() const;
 
 private:
+    friend class TesteRegistro; ///< Acesso do teste unitário (test_unit_registro.cpp).
+
     int idRegistro;            ///< Número do registro.
     DataHora dataHora;         ///< Momento em que foi salvo.
     int idOperador;            ///< Usuário que contou.

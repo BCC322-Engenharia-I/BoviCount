@@ -35,6 +35,15 @@ public:
      */
     static RepositorioHistorico& instancia();
 
+    /** @brief Cópia proibida: existe uma única instância (Singleton). */
+    RepositorioHistorico(const RepositorioHistorico&) = delete;
+
+    /** @brief Atribuição proibida: existe uma única instância (Singleton). */
+    RepositorioHistorico& operator=(const RepositorioHistorico&) = delete;
+
+    /** @brief Destrutor. */
+    ~RepositorioHistorico() = default;
+
     /**
      * @brief Guarda um registro novo e o devolve.
      *
@@ -86,12 +95,6 @@ private:
 
     /** @brief Construtor privado (Singleton). */
     RepositorioHistorico();
-
-    /** @brief Cópia proibida (declarado e não implementado). */
-    RepositorioHistorico(const RepositorioHistorico&);
-
-    /** @brief Atribuição proibida (declarado e não implementado). */
-    RepositorioHistorico& operator=(const RepositorioHistorico&);
 
     std::vector<Entrada> entradas; ///< Registros guardados.
     int proximoId;                 ///< Número do próximo registro.

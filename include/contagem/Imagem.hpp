@@ -32,10 +32,21 @@ public:
      */
     explicit Imagem(const std::string& caminho);
 
+    /** @brief Construtor de cópia: copia o caminho de outra Imagem. */
+    Imagem(const Imagem&) = default;
+
+    /** @brief Atribuição por cópia: copia o caminho de outra Imagem. */
+    Imagem& operator=(const Imagem&) = default;
+
+    /** @brief Destrutor. */
+    ~Imagem() = default;
+
     /** @brief Devolve o caminho do arquivo ("" se não houver foto). */
     std::string path() const;
 
 private:
+    friend class TesteImagem; ///< Acesso do teste unitário (test_unit_imagem.cpp).
+
     std::string caminho; ///< Caminho do arquivo da foto.
 };
 

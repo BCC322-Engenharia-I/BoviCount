@@ -22,6 +22,9 @@
  */
 class FiltroHistorico {
 public:
+    /** @brief Construtor padrão proibido: todo filtro precisa de um período. */
+    FiltroHistorico() = delete;
+
     /**
      * @brief Cria um filtro.
      * @param inicio     Primeiro dia do período (incluído).
@@ -32,6 +35,15 @@ public:
     FiltroHistorico(const Data& inicio, const Data& fim,
                     int idPasto = 0,
                     int idOperador = 0);
+
+    /** @brief Construtor de cópia: copia período, pasto e funcionário de outro filtro. */
+    FiltroHistorico(const FiltroHistorico&) = default;
+
+    /** @brief Atribuição por cópia: copia período, pasto e funcionário de outro filtro. */
+    FiltroHistorico& operator=(const FiltroHistorico&) = default;
+
+    /** @brief Destrutor. */
+    ~FiltroHistorico() = default;
 
     /** @brief Devolve o primeiro dia do período. */
     Data start() const;

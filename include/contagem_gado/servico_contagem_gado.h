@@ -52,6 +52,15 @@ public:
      *              durante a vida útil do serviço.
      */
     ServicoContagem(const Sessao& sessao, MotorVisao& motor);
+
+    /** @brief Cópia proibida: o serviço guarda uma referência ao motor de visão. */
+    ServicoContagem(const ServicoContagem&) = delete;
+
+    /** @brief Atribuição proibida: o serviço guarda uma referência ao motor de visão. */
+    ServicoContagem& operator=(const ServicoContagem&) = delete;
+
+    /** @brief Destrutor. */
+    ~ServicoContagem() = default;
     /**
      * @brief Valida uma imagem e solicita ao motor a sua análise.
      *

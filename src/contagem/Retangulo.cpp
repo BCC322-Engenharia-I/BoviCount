@@ -6,6 +6,8 @@
 
 #include "contagem/Retangulo.hpp"
 
+Retangulo::Retangulo() : posX(0), posY(0), largura(0), altura(0) {}
+
 Retangulo::Retangulo(int x, int y, int largura, int altura)
     : posX(x), posY(y), largura(largura), altura(altura) {}
 

@@ -4,6 +4,9 @@
  */
 #include "pasto/DadosPasto.hpp"
 
+/** @copydoc DadosPasto::DadosPasto() */
+DadosPasto::DadosPasto() : nome(), localizacao(), capacidade(0) {}
+
 /** @copydoc DadosPasto::DadosPasto(const std::string&, const std::string&, int) */
 DadosPasto::DadosPasto(const std::string& nome, const std::string& localizacao, int capacidade)
     : nome(nome), localizacao(localizacao), capacidade(capacidade) {}

@@ -32,6 +32,15 @@ public:
      */
     DataHora(const Data& data, int hora, int minuto, int segundo);
 
+    /** @brief Construtor de cópia: copia o dia e a hora de outra DataHora. */
+    DataHora(const DataHora&) = default;
+
+    /** @brief Atribuição por cópia: copia o dia e a hora de outra DataHora. */
+    DataHora& operator=(const DataHora&) = default;
+
+    /** @brief Destrutor. */
+    ~DataHora() = default;
+
     /**
      * @brief Devolve o momento atual, segundo o relógio do computador.
      *

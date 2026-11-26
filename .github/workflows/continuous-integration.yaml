@@ -19,6 +19,12 @@ jobs:
             - name: build
               run: make compile
 
+            # compila e roda os testes unitarios das entidades
+            - name: test unitarios
+              run: |
+                make compile-test-unitarios
+                make run-test-unitarios
+
             # compila e roda os testes do pasto
             - name: test pasto
               run: |

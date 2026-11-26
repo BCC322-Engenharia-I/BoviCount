@@ -19,6 +19,8 @@
  */
 class Pasto {
 private:
+    friend class TestePasto; ///< Acesso do teste unitário (test_unit_pasto.cpp).
+
     int idPasto;            ///< Número que identifica o pasto (0 = não cadastrado).
     std::string nome;       ///< Nome do pasto.
     std::string localizacao;///< Localização do pasto.
@@ -40,6 +42,15 @@ public:
      * @param idPropriedade Fazenda a que o pasto pertence.
      */
     Pasto(int id, const DadosPasto& dados, int idPropriedade);
+
+    /** @brief Construtor de cópia: copia todos os campos de outro Pasto. */
+    Pasto(const Pasto&) = default;
+
+    /** @brief Atribuição por cópia: copia todos os campos de outro Pasto. */
+    Pasto& operator=(const Pasto&) = default;
+
+    /** @brief Destrutor. */
+    ~Pasto() = default;
 
     /** @brief Número que identifica o pasto (0 se ainda não cadastrado). */
     int id() const;

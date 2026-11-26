@@ -17,6 +17,9 @@
  */
 class Retangulo {
 public:
+    /** @brief Cria uma marcação vazia: posição (0, 0) e tamanho 0 x 0. */
+    Retangulo();
+
     /**
      * @brief Cria uma marcação.
      * @param x       Posição horizontal do canto superior esquerdo, em pixels.
@@ -25,6 +28,15 @@ public:
      * @param altura  Altura da caixa, em pixels.
      */
     Retangulo(int x, int y, int largura, int altura);
+
+    /** @brief Construtor de cópia: copia posição e tamanho de outro Retangulo. */
+    Retangulo(const Retangulo&) = default;
+
+    /** @brief Atribuição por cópia: copia posição e tamanho de outro Retangulo. */
+    Retangulo& operator=(const Retangulo&) = default;
+
+    /** @brief Destrutor. */
+    ~Retangulo() = default;
 
     /** @brief Devolve a posição horizontal do canto superior esquerdo. */
     int x() const;
@@ -39,6 +51,8 @@ public:
     int height() const;
 
 private:
+    friend class TesteRetangulo; ///< Acesso do teste unitário (test_unit_retangulo.cpp).
+
     int posX;    ///< Posição horizontal (pixels).
     int posY;    ///< Posição vertical (pixels).
     int largura; ///< Largura (pixels).

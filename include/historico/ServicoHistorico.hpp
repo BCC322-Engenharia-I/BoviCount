@@ -64,6 +64,15 @@ public:
      */
     explicit ServicoHistorico(const Sessao& sessao);
 
+    /** @brief Cópia proibida: o serviço está ligado ao repositório compartilhado e à sua sessão. */
+    ServicoHistorico(const ServicoHistorico&) = delete;
+
+    /** @brief Atribuição proibida: o serviço está ligado ao repositório compartilhado e à sua sessão. */
+    ServicoHistorico& operator=(const ServicoHistorico&) = delete;
+
+    /** @brief Destrutor. */
+    ~ServicoHistorico() = default;
+
     /**
      * @brief Salva uma contagem confirmada no histórico.
      *

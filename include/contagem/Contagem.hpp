@@ -37,6 +37,15 @@ public:
      */
     Contagem(const Imagem& imagem, const Colecao<Retangulo>& caixas, double segundos);
 
+    /** @brief Construtor de cópia: copia a foto, as marcações e o tempo de outra Contagem. */
+    Contagem(const Contagem&) = default;
+
+    /** @brief Atribuição por cópia: copia a foto, as marcações e o tempo de outra Contagem. */
+    Contagem& operator=(const Contagem&) = default;
+
+    /** @brief Destrutor. */
+    ~Contagem() = default;
+
     /** @brief Devolve o total de animais encontrados (número de marcações). */
     int total() const;
 
@@ -50,6 +59,8 @@ public:
     Imagem image() const;
 
 private:
+    friend class TesteContagem; ///< Acesso do teste unitário (test_unit_contagem.cpp).
+
     Imagem foto;                    ///< Foto analisada.
     Colecao<Retangulo> marcacoes;   ///< Uma marcação por animal.
     double segundos;                ///< Tempo da análise, em segundos.

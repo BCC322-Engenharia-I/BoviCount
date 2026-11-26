@@ -32,6 +32,15 @@ public:
     /** @brief Cria um repositório vazio, com o próximo id igual a 1. */
     RepositorioPastos();
 
+    /** @brief Cópia proibida: o repositório é compartilhado; copiá-lo duplicaria os dados. */
+    RepositorioPastos(const RepositorioPastos&) = delete;
+
+    /** @brief Atribuição proibida: o repositório é compartilhado; copiá-lo duplicaria os dados. */
+    RepositorioPastos& operator=(const RepositorioPastos&) = delete;
+
+    /** @brief Destrutor. */
+    ~RepositorioPastos() = default;
+
     /**
      * @brief Instância única usada pelos serviços.
      * @return Referência à instância compartilhada (criada no primeiro uso).

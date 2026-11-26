@@ -13,7 +13,15 @@ private:
     std::size_t posicao;
 
 public:
+    // Sem lista nao ha o que percorrer.
+    Iterador() = delete;
+
     explicit Iterador(const std::vector<T>& itens) : itens(itens), posicao(0) {}
+
+    // Copia a lista e a posicao atual de outro iterador.
+    Iterador(const Iterador&) = default;
+    Iterador& operator=(const Iterador&) = default;
+    ~Iterador() = default;
 
     // Ainda ha algum item para ver?
     bool hasNext() const { return posicao < itens.size(); }

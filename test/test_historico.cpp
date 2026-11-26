@@ -2,6 +2,9 @@
  * @file test_historico.cpp
  * @brief Testes do ServicoHistorico (salvar, consultar e medir o erro da contagem).
  *
+ * Os testes só instanciam o ServicoHistorico: os pastos de apoio são semeados direto
+ * no RepositorioPastos (nenhum outro serviço é usado).
+ *
  * Os testes seguem os cenários de teste das seções 4.3 e 4.4 do projeto da API
  * e usam os mesmos dados dos exemplos (Pasto Fundo, Funcionário João, outubro de 2026).
  * Compile com `make compile-test-historico` e execute com `make run-test-historico`.
@@ -12,7 +15,7 @@
 #include <iostream>
 #include "usuario/Usuario.hpp"
 #include "usuario/Sessao.hpp"
-#include "pasto/ServicoPastos.hpp"
+#include "pasto/RepositorioPastos.hpp"
 #include "historico/ServicoHistorico.hpp"
 
 /**
@@ -23,6 +26,20 @@
 static void limpar() {
     RepositorioPastos::instancia().limpar();
     RepositorioHistorico::instancia().limpar();
+}
+
+/**
+ * @brief Grava direto no RepositorioPastos um pasto de apoio para os testes.
+ *
+ * @param nome        Nome do pasto.
+ * @param localizacao Localização do pasto.
+ * @param capacidade  Capacidade do pasto.
+ * @param fazenda     Fazenda dona do pasto.
+ * @return O pasto gravado, já com o seu número.
+ */
+static Pasto semearPasto(const std::string& nome, const std::string& localizacao,
+                         int capacidade, int fazenda) {
+    return RepositorioPastos::instancia().inserir(DadosPasto(nome, localizacao, capacidade), fazenda);
 }
 
 /**
@@ -103,12 +120,11 @@ static void testeData() {
  */
 static void testeSalvarFuncionario() {
     limpar();
-    ServicoPastos gestor(Sessao(Usuario(1, "Gestor", 1)));
     ServicoHistorico joao(Sessao(Usuario(5, "Funcionário", 1)));
     ServicoHistorico historicoGestor(Sessao(Usuario(1, "Gestor", 1)));
 
     Pasto fundo;
-    assert(gestor.create(DadosPasto("Pasto Fundo", "Divisa Norte", 200), fundo));
+    fundo = semearPasto("Pasto Fundo", "Divisa Norte", 200, 1);
 
     Data antes = DataHora::agora().date();
     Registro r;
@@ -141,11 +157,10 @@ static void testeSalvarFuncionario() {
  */
 static void testeSalvarComCorrecao() {
     limpar();
-    ServicoPastos gestor(Sessao(Usuario(1, "Gestor", 1)));
     ServicoHistorico joao(Sessao(Usuario(5, "Funcionário", 1)));
 
     Pasto fundo;
-    assert(gestor.create(DadosPasto("Pasto Fundo", "Divisa Norte", 200), fundo));
+    fundo = semearPasto("Pasto Fundo", "Divisa Norte", 200, 1);
 
     Registro r;
     assert(joao.save(criarContagem("foto.jpg", 180), fundo.id(), 200, r));
@@ -158,12 +173,11 @@ static void testeSalvarComCorrecao() {
  */
 static void testeSalvarGestorEAdministrador() {
     limpar();
-    ServicoPastos gestor(Sessao(Usuario(1, "Gestor", 1)));
     ServicoHistorico comoGestor(Sessao(Usuario(1, "Gestor", 1)));
     ServicoHistorico comoAdmin(Sessao(Usuario(2, "Administrador", 1)));
 
     Pasto fundo;
-    assert(gestor.create(DadosPasto("Pasto Fundo", "Divisa Norte", 200), fundo));
+    fundo = semearPasto("Pasto Fundo", "Divisa Norte", 200, 1);
 
     Registro a, b;
     assert(comoGestor.save(criarContagem("a.png", 10), fundo.id(), 10, a));
@@ -178,11 +192,10 @@ static void testeSalvarGestorEAdministrador() {
  */
 static void testeSalvarContagemZero() {
     limpar();
-    ServicoPastos gestor(Sessao(Usuario(1, "Gestor", 1)));
     ServicoHistorico joao(Sessao(Usuario(5, "Funcionário", 1)));
 
     Pasto vazio;
-    assert(gestor.create(DadosPasto("Pasto Vazio", "Sede", 50), vazio));
+    vazio = semearPasto("Pasto Vazio", "Sede", 50, 1);
 
     Registro r;
     assert(joao.save(criarContagem("vazio.jpg", 0), vazio.id(), 0, r));
@@ -197,14 +210,12 @@ static void testeSalvarContagemZero() {
  */
 static void testeSalvarRecusas() {
     limpar();
-    ServicoPastos gestor(Sessao(Usuario(1, "Gestor", 1)));
-    ServicoPastos outraFazenda(Sessao(Usuario(9, "Gestor", 2)));
     ServicoHistorico joao(Sessao(Usuario(5, "Funcionário", 1)));
     ServicoHistorico historicoGestor(Sessao(Usuario(1, "Gestor", 1)));
 
     Pasto fundo, alheio;
-    assert(gestor.create(DadosPasto("Pasto Fundo", "Divisa Norte", 200), fundo));
-    assert(outraFazenda.create(DadosPasto("Pasto Alheio", "Longe", 80), alheio));
+    fundo = semearPasto("Pasto Fundo", "Divisa Norte", 200, 1);
+    alheio = semearPasto("Pasto Alheio", "Longe", 80, 2);
 
     // pasto que nao existe
     Registro r1;
@@ -238,41 +249,39 @@ static void testeSalvarRecusas() {
 }
 
 /**
- * @brief Integração com os pastos: pasto com contagem salva não pode ser removido.
+ * @brief Integração com os pastos: salvar marca o pasto como "com contagens".
  *
- * Um pasto sem contagens continua removível.
+ * É essa marca que faz o ServicoPastos::remove recusar a remoção. Um pasto sem
+ * contagens salvas não é marcado.
  */
-static void testeSalvarBloqueiaRemocaoDoPasto() {
+static void testeSalvarMarcaPastoComContagens() {
     limpar();
-    ServicoPastos gestor(Sessao(Usuario(1, "Gestor", 1)));
     ServicoHistorico joao(Sessao(Usuario(5, "Funcionário", 1)));
 
     Pasto fundo, brejo;
-    assert(gestor.create(DadosPasto("Pasto Fundo", "Divisa Norte", 200), fundo));
-    assert(gestor.create(DadosPasto("Pasto Brejo", "Rio Sul", 120), brejo));
+    fundo = semearPasto("Pasto Fundo", "Divisa Norte", 200, 1);
+    brejo = semearPasto("Pasto Brejo", "Rio Sul", 120, 1);
 
     Registro r;
     assert(joao.save(criarContagem("foto.jpg", 185), fundo.id(), 185, r));
 
-    assert(!gestor.remove(fundo.id()));
-    assert(gestor.query(FiltroPasto("Pasto Fundo")).size() == 1);
-    assert(gestor.remove(brejo.id()));
+    assert(RepositorioPastos::instancia().temContagens(fundo.id()));
+    assert(!RepositorioPastos::instancia().temContagens(brejo.id()));
 }
 
 /**
  * @brief Um salvamento recusado não marca o pasto como "com contagens".
  */
-static void testeRecusaNaoBloqueiaPasto() {
+static void testeRecusaNaoMarcaPasto() {
     limpar();
-    ServicoPastos gestor(Sessao(Usuario(1, "Gestor", 1)));
     ServicoHistorico joao(Sessao(Usuario(5, "Funcionário", 1)));
 
     Pasto fundo;
-    assert(gestor.create(DadosPasto("Pasto Fundo", "Divisa Norte", 200), fundo));
+    fundo = semearPasto("Pasto Fundo", "Divisa Norte", 200, 1);
 
     Registro r;
     assert(!joao.save(criarContagem("foto.jpg", 10), fundo.id(), -5, r));
-    assert(gestor.remove(fundo.id()));
+    assert(!RepositorioPastos::instancia().temContagens(fundo.id()));
 }
 
 // ---------- Consultar ----------
@@ -468,18 +477,17 @@ static void testeErroRespeitaFiltroEFazenda() {
 }
 
 /**
- * @brief Fluxo completo (3.3): o Gestor cadastra, o Funcionário salva, o Gestor consulta o erro.
+ * @brief Fluxo completo (3.3): com o pasto já cadastrado, o Funcionário salva e o Gestor consulta o erro.
  *
- * Termina conferindo que o pasto com contagens não pode mais ser removido.
+ * Termina conferindo que o pasto ficou marcado como "com contagens".
  */
 static void testeFluxoCompleto() {
     limpar();
-    ServicoPastos gestor(Sessao(Usuario(1, "Gestor", 1)));
     ServicoHistorico joao(Sessao(Usuario(5, "Funcionário", 1)));
     ServicoHistorico historico(Sessao(Usuario(1, "Gestor", 1)));
 
     Pasto fundo;
-    assert(gestor.create(DadosPasto("Pasto Fundo", "Divisa Norte", 200), fundo));
+    fundo = semearPasto("Pasto Fundo", "Divisa Norte", 200, 1);
 
     Registro a, b;
     assert(joao.save(criarContagem("a.jpg", 185), fundo.id(), 185, a));
@@ -492,7 +500,7 @@ static void testeFluxoCompleto() {
     assert(historico.errorRate(tudo, taxa));
     assert(quase(taxa, 5.0));
 
-    assert(!gestor.remove(fundo.id()));
+    assert(RepositorioPastos::instancia().temContagens(fundo.id()));
 }
 
 /**
@@ -510,8 +518,8 @@ int main() {
     testeSalvarGestorEAdministrador();
     testeSalvarContagemZero();
     testeSalvarRecusas();
-    testeSalvarBloqueiaRemocaoDoPasto();
-    testeRecusaNaoBloqueiaPasto();
+    testeSalvarMarcaPastoComContagens();
+    testeRecusaNaoMarcaPasto();
     testeConsultaFuncionario();
     testeConsultaFiltros();
     testeConsultaAdministrador();

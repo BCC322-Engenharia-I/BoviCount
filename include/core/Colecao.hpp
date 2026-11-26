@@ -13,6 +13,11 @@ private:
 public:
     Colecao() : itens() {}
 
+    // Copia os itens de outra lista.
+    Colecao(const Colecao&) = default;
+    Colecao& operator=(const Colecao&) = default;
+    ~Colecao() = default;
+
     // Acrescenta um item a lista.
     void add(const T& item) { itens.push_back(item); }
 

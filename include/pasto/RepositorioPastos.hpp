@@ -28,6 +28,8 @@ private:
     std::set<int> pastosComContagem;    ///< Ids dos pastos que têm contagens salvas.
     int proximoId;                      ///< Próximo identificador a ser atribuído.
 
+    /** @brief Atribuição proibida (declarado e não implementado). */
+    RepositorioPastos& operator=(const RepositorioPastos&);
 public:
     /** @brief Cria um repositório vazio, com o próximo id igual a 1. */
     RepositorioPastos();

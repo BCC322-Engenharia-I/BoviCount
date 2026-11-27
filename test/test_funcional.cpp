@@ -493,6 +493,12 @@ typedef std::vector<bool> Resp;
 // RF-00  Acesso ao sistema e navegacao (login, troca de usuario, menu)
 // =====================================================================
 
+/**
+ * @brief Login e troca de usuário pelo menu.
+ *
+ * Opções de papel inválidas fazem o sistema perguntar de novo (quatro perguntas no total).
+ * Depois confere o usuário mostrado ao logar como Funcionário e ao trocar para Gestor.
+ */
 static void teste_acesso_login_e_troca_de_usuario() {
     Roteiro r;
     r.linha(7).linha(0)                 // opcoes de papel invalidas: o sistema pergunta de novo
@@ -506,6 +512,10 @@ static void teste_acesso_login_e_troca_de_usuario() {
     EXIGE(s, ocorrencias(s, "Escolha o papel: ") == 4);
 }
 
+/**
+ * @brief Opção inexistente no menu (99): o sistema avisa que a opção é inválida e continua
+ *        funcionando.
+ */
 static void teste_acesso_opcao_invalida_do_menu() {
     Roteiro r;
     r.login(GESTOR, 1, 1).linha(99);
@@ -517,7 +527,12 @@ static void teste_acesso_opcao_invalida_do_menu() {
 // RF-01  Cadastrar pasto/lote  (4.1)
 // =====================================================================
 
-// Cenario 1
+/**
+ * @brief Cenário 1 de 4.1: o Gestor cadastra o Pasto Fundo.
+ *
+ * Confere que o cadastro é aceito e que o pasto aparece na consulta com id, nome, localização e
+ * capacidade.
+ */
 static void teste_cadastrar_pasto_principal() {
     Roteiro r = comPastoFundo();
     r.consultarPastos();
@@ -528,7 +543,12 @@ static void teste_cadastrar_pasto_principal() {
     EXIGE(s, contem(lista, "[1] Pasto Fundo | Divisa Norte | capacidade 200"));
 }
 
-// Cenario 2: nome repetido, capacidade invalida e campos vazios
+/**
+ * @brief Cenário 2 de 4.1: cadastros inválidos são recusados.
+ *
+ * Cobre nome repetido, capacidade 0, capacidade negativa, texto não numérico (lido como 0),
+ * nome só com espaços e localização vazia. Confere que só o primeiro pasto existe na consulta.
+ */
 static void teste_cadastrar_pasto_recusas() {
     Roteiro r = comPastoFundo();
     r.cadastrarPasto("Pasto Fundo", "Outro Lugar", 100)  // nome repetido
@@ -545,7 +565,12 @@ static void teste_cadastrar_pasto_recusas() {
     EXIGE(s, ocorrencias(lista, " | capacidade ") == 1);  // nada novo foi criado
 }
 
-// O nome so precisa ser unico dentro da fazenda
+/**
+ * @brief O nome do pasto só precisa ser único dentro da fazenda.
+ *
+ * Um Gestor da fazenda 2 cadastra outro Pasto Fundo com sucesso, e a consulta dele mostra só o
+ * pasto da própria fazenda.
+ */
 static void teste_cadastrar_pasto_nome_em_outra_fazenda() {
     Roteiro r = comPastoFundo();
     r.trocarUsuario(GESTOR, 9, 2)
@@ -560,7 +585,11 @@ static void teste_cadastrar_pasto_nome_em_outra_fazenda() {
     EXIGE(s, !contem(lista, "Divisa Norte"));
 }
 
-// Cenario 5: Funcionario nao cadastra, mas consulta normalmente
+/**
+ * @brief Cenário 5 de 4.1: o Funcionário não cadastra pasto, mas consulta normalmente.
+ *
+ * Confere a recusa do cadastro e que a consulta continua mostrando só o Pasto Fundo.
+ */
 static void teste_cadastrar_pasto_funcionario_recusado() {
     Roteiro r = comPastoFundo();
     r.trocarUsuario(FUNCIONARIO, 5, 1)
@@ -574,7 +603,7 @@ static void teste_cadastrar_pasto_funcionario_recusado() {
     EXIGE(s, contem(lista, "Pasto Fundo"));
 }
 
-// O Administrador faz o mesmo que o Gestor
+/** @brief O Administrador cadastra pastos como o Gestor. */
 static void teste_cadastrar_pasto_administrador() {
     Roteiro r;
     r.login(ADMINISTRADOR, 2, 1).cadastrarPasto("Pasto A", "Sede", 50).consultarPastos();

@@ -961,7 +961,11 @@ static void teste_contar_recusa_preserva_contagem_anterior() {
 // RF-06  Salvar a contagem  (4.3)
 // =====================================================================
 
-// Cenario 1: Funcionario Joao salva 185 contados e 185 confirmados
+/**
+ * @brief Cenário 1 de 4.3: o Funcionário João salva 185 contados e 185 confirmados.
+ *
+ * Confere o registro salvo e que o histórico do Gestor mostra operador, pasto, totais e foto.
+ */
 static void teste_salvar_contagem_principal() {
     Roteiro r = comPastoFundo();
     r.trocarUsuario(FUNCIONARIO, 5, 1)
@@ -980,7 +984,11 @@ static void teste_salvar_contagem_principal() {
                           + foto("vistoria_20261006_pasto1.png")));
 }
 
-// Cenario 2: o usuario corrige o total
+/**
+ * @brief Cenário 2 de 4.3: o usuário corrige o total.
+ *
+ * O sistema contou 180, o usuário confirma 200 e o registro guarda os dois valores.
+ */
 static void teste_salvar_contagem_com_correcao() {
     Roteiro r = comPastoFundo();
     r.contagemSalva("correcao.png", 180, 1, 200);
@@ -990,7 +998,12 @@ static void teste_salvar_contagem_com_correcao() {
     EXIGE(s, contem(s, "Registro 1 salvo: calculado 180, confirmado 200"));
 }
 
-// Cenario 3 e demais recusas: nada e salvo e o pasto continua removivel
+/**
+ * @brief Cenário 3 de 4.3 e demais recusas: nada é salvo.
+ *
+ * Cobre pasto inexistente, pasto de outra fazenda e total confirmado negativo. Confere que o
+ * histórico continua vazio e que as recusas não impedem a remoção do pasto.
+ */
 static void teste_salvar_contagem_recusas() {
     Roteiro r = comPastoFundo();
     r.trocarUsuario(GESTOR, 9, 2).cadastrarPasto("Pasto Alheio", "Longe", 80)   // pasto 2, da fazenda 2
@@ -1009,6 +1022,10 @@ static void teste_salvar_contagem_recusas() {
     EXIGE(s, contem(aposPrompt(s, PROMPT_FUNC), "(nenhuma contagem encontrada ou sem permissao)"));
 }
 
+/**
+ * @brief Salvamento cancelado pelo usuário na confirmação: nada é salvo e o histórico fica
+ *        vazio.
+ */
 static void teste_salvar_contagem_cancelada() {
     Roteiro r = comPastoFundo();
     r.criarImagem(foto("cancelar.png"), 800, 600)
@@ -1022,6 +1039,10 @@ static void teste_salvar_contagem_cancelada() {
     EXIGE(s, contem(aposPrompt(s, PROMPT_FUNC), "(nenhuma contagem encontrada ou sem permissao)"));
 }
 
+/**
+ * @brief Salvar sem ter contado antes: o sistema avisa que não há contagem para salvar e não
+ *        pergunta mais nada.
+ */
 static void teste_salvar_sem_ter_contado() {
     Roteiro r = comPastoFundo();
     r.salvarSemContagem();
@@ -1031,7 +1052,7 @@ static void teste_salvar_sem_ter_contado() {
     EXIGE(s, resultados(s) == Resp({true}));
 }
 
-// Foto sem animais: total 0 e valido e pode ser salvo
+/** @brief Foto sem animais: o total 0 é válido e pode ser salvo (calculado 0 e confirmado 0). */
 static void teste_salvar_contagem_zero() {
     Roteiro r = comPastoFundo();
     r.contagemSalva("zero.png", 0, 1, 0);
@@ -1041,7 +1062,11 @@ static void teste_salvar_contagem_zero() {
     EXIGE(s, contem(s, "Registro 1 salvo: calculado 0, confirmado 0"));
 }
 
-// Gestor e Administrador tambem salvam; o operador registrado e quem esta logado
+/**
+ * @brief Gestor e Administrador também salvam contagens.
+ *
+ * O operador registrado no histórico é quem está logado (ids 1 e 2).
+ */
 static void teste_salvar_gestor_e_administrador() {
     Roteiro r = comPastoFundo();
     r.contagemSalva("g.png", 10, 1, 10)

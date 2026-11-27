@@ -30,7 +30,13 @@ namespace fs = std::filesystem;
 
 // ---------- Verificacao ----------
 
-// Se a condicao falhar, mostra a linha, a saida do programa e encerra com erro.
+/**
+ * @brief Confere uma condição do teste; se falhar, mostra a linha, a saída do programa e
+ *        encerra com erro.
+ *
+ * @param saida Texto que o programa mostrou, exibido junto da falha para ajudar a depurar.
+ * @param cond  Condição que precisa ser verdadeira.
+ */
 #define EXIGE(saida, cond)                                                       \
     do {                                                                         \
         if (!(cond)) {                                                           \
@@ -41,6 +47,12 @@ namespace fs = std::filesystem;
         }                                                                        \
     } while (0)
 
+/**
+ * @brief Executa uma função de teste e imprime o nome dela seguido de OK quando termina sem
+ *        falhar.
+ *
+ * @param teste Nome da função de teste, sem parênteses.
+ */
 #define RODAR(teste)                                                             \
     do {                                                                         \
         teste();                                                                 \
@@ -49,38 +61,89 @@ namespace fs = std::filesystem;
 
 // ---------- Constantes da interface ----------
 
+/** @brief Opção 1 da tela de login: papel Gestor. */
 static const int GESTOR = 1;
+/** @brief Opção 2 da tela de login: papel Funcionário. */
 static const int FUNCIONARIO = 2;
+/** @brief Opção 3 da tela de login: papel Administrador. */
 static const int ADMINISTRADOR = 3;
 
+/**
+ * @brief Pergunta da busca por nome em Consultar pastos; a lista de pastos aparece logo depois
+ *        dela.
+ */
 static const char* const PROMPT_BUSCA = "Buscar pelo nome (vazio = todos): ";
+/**
+ * @brief Última pergunta do filtro do histórico e do erro (id do funcionário); a resposta da
+ *        consulta aparece logo depois dela.
+ */
 static const char* const PROMPT_FUNC = "Id do funcionario (0 = todos): ";
+/** @brief Título do menu principal; marca onde termina a resposta de uma operação. */
 static const char* const CABECALHO_MENU = "===== BOVICOUNT =====";
 
+/**
+ * @brief Período de datas digitado nos filtros do histórico e do erro (dia, mês e ano, inicial
+ *        e final).
+ */
 struct Periodo {
     int di, mi, ai;  // dia, mes e ano iniciais
     int df, mf, af;  // dia, mes e ano finais
 };
-// O historico carimba a data de hoje; por isso os testes usam um periodo amplo.
+/**
+ * @brief Período amplo (2000 a 2999) que inclui a data de hoje.
+ *
+ * O histórico carimba a data atual de cada contagem; por isso os testes usam um período amplo e
+ * não dependem do dia em que rodam.
+ */
 static const Periodo TODO_PERIODO = {1, 1, 2000, 31, 12, 2999};
+/**
+ * @brief Período que não inclui a data de hoje (todo o ano de 2020), usado em consultas sem
+ *        resultado.
+ */
 static const Periodo ANO_2020 = {1, 1, 2020, 31, 12, 2020};
 
 // ---------- Arquivos de apoio ----------
 
+/**
+ * @brief Pasta temporária onde o teste cria as fotos, o roteiro de entrada e a saída do
+ *        programa.
+ *
+ * @return Caminho da pasta temporária.
+ */
 static fs::path pasta() {
     return fs::temp_directory_path() / "bovicount_test_funcional";
 }
 
+/**
+ * @brief Monta o caminho completo de um arquivo dentro da pasta temporária.
+ *
+ * @param nome Nome do arquivo.
+ * @return Caminho completo do arquivo.
+ */
 static std::string foto(const std::string& nome) {
     return (pasta() / nome).string();
 }
 
+/**
+ * @brief Grava bytes crus em um arquivo.
+ *
+ * @param arquivo Caminho do arquivo a criar.
+ * @param b       Bytes a gravar.
+ */
 static void escreverBytes(const std::string& arquivo, const std::vector<unsigned char>& b) {
     std::ofstream saida(arquivo, std::ios::binary);
     saida.write(reinterpret_cast<const char*>(b.data()), static_cast<std::streamsize>(b.size()));
 }
 
-// Arquivo com cabecalho JPEG valido (SOI + SOF0) nas dimensoes dadas.
+/**
+ * @brief Cria um arquivo só com cabeçalho JPEG válido (SOI + SOF0) nas dimensões dadas.
+ *
+ * Serve para testar o formato e o limite de 4K sem precisar de uma foto real.
+ *
+ * @param arquivo Caminho do arquivo a criar.
+ * @param largura Largura em pixels.
+ * @param altura  Altura em pixels.
+ */
 static void criarJPEG(const std::string& arquivo, std::uint16_t largura, std::uint16_t altura) {
     std::vector<unsigned char> b = {0xFF, 0xD8, 0xFF, 0xC0, 0x00, 17, 8};
     b.push_back(static_cast<unsigned char>(altura >> 8));
@@ -92,7 +155,12 @@ static void criarJPEG(const std::string& arquivo, std::uint16_t largura, std::ui
     escreverBytes(arquivo, b);
 }
 
-// Arquivo qualquer com o texto dado (formato errado, cabecalho invalido etc.).
+/**
+ * @brief Cria um arquivo com o texto dado, para simular formato errado ou cabeçalho inválido.
+ *
+ * @param arquivo Caminho do arquivo a criar.
+ * @param texto   Conteúdo do arquivo.
+ */
 static void criarTexto(const std::string& arquivo, const std::string& texto) {
     std::ofstream saida(arquivo, std::ios::binary);
     saida << texto;
@@ -100,10 +168,24 @@ static void criarTexto(const std::string& arquivo, const std::string& texto) {
 
 // ---------- Analise da saida ----------
 
+/**
+ * @brief Diz se um texto contém um trecho.
+ *
+ * @param s      Texto onde procurar.
+ * @param trecho Trecho procurado.
+ * @return @c true se o trecho aparece.
+ */
 static bool contem(const std::string& s, const std::string& trecho) {
     return s.find(trecho) != std::string::npos;
 }
 
+/**
+ * @brief Conta quantas vezes um trecho aparece em um texto, sem sobreposição.
+ *
+ * @param s      Texto onde procurar.
+ * @param trecho Trecho procurado.
+ * @return Número de ocorrências.
+ */
 static int ocorrencias(const std::string& s, const std::string& trecho) {
     int n = 0;
     for (std::size_t p = s.find(trecho); p != std::string::npos; p = s.find(trecho, p + trecho.size())) {
@@ -112,7 +194,14 @@ static int ocorrencias(const std::string& s, const std::string& trecho) {
     return n;
 }
 
-// Sequencia de respostas ">> OK" (true) e ">> RECUSADO" (false), na ordem em que apareceram.
+/**
+ * @brief Lista as respostas de sucesso e de recusa do sistema, na ordem em que apareceram.
+ *
+ * Cada resposta OK vira @c true e cada resposta RECUSADO vira @c false.
+ *
+ * @param s Saída completa do programa.
+ * @return Sequência de respostas.
+ */
 static std::vector<bool> resultados(const std::string& s) {
     std::vector<bool> r;
     std::size_t p = 0;
@@ -131,8 +220,17 @@ static std::vector<bool> resultados(const std::string& s) {
     return r;
 }
 
-// Texto que o sistema mostrou depois da n-esima vez que fez a pergunta 'prompt'
-// (indice -1 = a ultima), ate o proximo menu. Isola a resposta de uma consulta.
+/**
+ * @brief Isola a resposta de uma consulta: devolve o texto mostrado depois da n-ésima vez que o
+ *        sistema fez a pergunta, até o próximo menu.
+ *
+ * Falha o teste se a pergunta não aparecer na saída.
+ *
+ * @param s      Saída completa do programa.
+ * @param prompt Texto da pergunta.
+ * @param indice Qual ocorrência da pergunta usar (0 é a primeira); -1 usa a última.
+ * @return Trecho entre a pergunta e o próximo menu.
+ */
 static std::string aposPrompt(const std::string& s, const std::string& prompt, int indice = -1) {
     std::vector<std::size_t> pos;
     for (std::size_t p = s.find(prompt); p != std::string::npos; p = s.find(prompt, p + prompt.size())) {
@@ -146,6 +244,12 @@ static std::string aposPrompt(const std::string& s, const std::string& prompt, i
     return s.substr(ini, fim == std::string::npos ? std::string::npos : fim - ini);
 }
 
+/**
+ * @brief Lê da saída o tempo de análise informado depois de uma contagem.
+ *
+ * @param s Saída completa do programa.
+ * @return Tempo de análise em segundos.
+ */
 static double tempoDeAnalise(const std::string& s) {
     const std::string chave = "Tempo de analise: ";
     const std::size_t p = s.find(chave);
@@ -155,68 +259,181 @@ static double tempoDeAnalise(const std::string& s) {
 
 // ---------- Roteiro: o que o "usuario" digita ----------
 
+/**
+ * @brief Monta e executa a sequência de respostas que o usuário digitaria no menu do programa.
+ *
+ * Cada método corresponde a uma opção do menu e devolve o próprio Roteiro, para encadear as
+ * chamadas. O método executar() roda o bin/app com essa entrada e devolve tudo o que ele
+ * mostrou.
+ */
 class Roteiro {
 private:
+    /** @brief Respostas que serão enviadas ao programa, uma por linha. */
     std::vector<std::string> linhas;
 
 public:
+    /**
+     * @brief Acrescenta uma resposta de texto.
+     *
+     * @param texto Texto digitado.
+     * @return O próprio roteiro.
+     */
     Roteiro& linha(const std::string& texto) { linhas.push_back(texto); return *this; }
+    /**
+     * @brief Acrescenta uma resposta numérica.
+     *
+     * @param numero Número digitado.
+     * @return O próprio roteiro.
+     */
     Roteiro& linha(int numero) { return linha(std::to_string(numero)); }
 
-    // Tela de login (papel, id do usuario e id da fazenda).
+    /**
+     * @brief Tela de login: papel, id do usuário e id da fazenda.
+     *
+     * @param papel   Opção do papel (GESTOR, FUNCIONARIO ou ADMINISTRADOR).
+     * @param id      Id do usuário.
+     * @param fazenda Id da fazenda.
+     * @return O próprio roteiro.
+     */
     Roteiro& login(int papel, int id, int fazenda) {
         return linha(papel).linha(id).linha(fazenda);
     }
-    // Menu 1: trocar de usuario.
+    /**
+     * @brief Menu 1: trocar de usuário.
+     *
+     * @param papel   Opção do novo papel.
+     * @param id      Id do novo usuário.
+     * @param fazenda Id da fazenda.
+     * @return O próprio roteiro.
+     */
     Roteiro& trocarUsuario(int papel, int id, int fazenda) {
         return linha(1).login(papel, id, fazenda);
     }
-    // Menu 2: cadastrar pasto.
+    /**
+     * @brief Menu 2: cadastrar pasto.
+     *
+     * @param nome       Nome do pasto.
+     * @param local      Localização do pasto.
+     * @param capacidade Capacidade do pasto.
+     * @return O próprio roteiro.
+     */
     Roteiro& cadastrarPasto(const std::string& nome, const std::string& local, int capacidade) {
         return linha(2).linha(nome).linha(local).linha(capacidade);
     }
-    // Menu 3: consultar pastos.
+    /**
+     * @brief Menu 3: consultar pastos.
+     *
+     * @param busca Trecho do nome a procurar; vazio mostra todos.
+     * @return O próprio roteiro.
+     */
     Roteiro& consultarPastos(const std::string& busca = "") {
         return linha(3).linha(busca);
     }
-    // Menu 4: editar pasto.
+    /**
+     * @brief Menu 4: editar pasto.
+     *
+     * @param id         Id do pasto a editar.
+     * @param nome       Novo nome.
+     * @param local      Nova localização.
+     * @param capacidade Nova capacidade.
+     * @return O próprio roteiro.
+     */
     Roteiro& editarPasto(int id, const std::string& nome, const std::string& local, int capacidade) {
         return linha(4).linha(id).linha(nome).linha(local).linha(capacidade);
     }
-    // Menu 5: remover pasto.
+    /**
+     * @brief Menu 5: remover pasto.
+     *
+     * @param id Id do pasto a remover.
+     * @return O próprio roteiro.
+     */
     Roteiro& removerPasto(int id) {
         return linha(5).linha(id);
     }
-    // Menu 6: criar uma imagem de teste (PNG com cabecalho valido).
+    /**
+     * @brief Menu 6: criar uma imagem de teste (PNG com cabeçalho válido).
+     *
+     * @param arquivo Caminho do arquivo a criar.
+     * @param largura Largura em pixels.
+     * @param altura  Altura em pixels.
+     * @return O próprio roteiro.
+     */
     Roteiro& criarImagem(const std::string& arquivo, int largura, int altura) {
         return linha(6).linha(arquivo).linha(largura).linha(altura);
     }
-    // Menu 7: contar o gado por foto (o motor simulado "detecta" 'animais').
+    /**
+     * @brief Menu 7: contar o gado por foto; o motor simulado detecta o número de animais
+     *        informado.
+     *
+     * @param caminho Caminho da foto.
+     * @param animais Quantos animais o motor simulado deve detectar.
+     * @return O próprio roteiro.
+     */
     Roteiro& contar(const std::string& caminho, int animais) {
         return linha(7).linha(caminho).linha(animais);
     }
-    // Menu 8: salvar a ultima contagem.
+    /**
+     * @brief Menu 8: salvar a última contagem.
+     *
+     * @param idPasto    Id do pasto contado.
+     * @param confirmado Total confirmado pelo usuário.
+     * @param confirma   @c true confirma o salvamento; @c false cancela.
+     * @return O próprio roteiro.
+     */
     Roteiro& salvar(int idPasto, int confirmado, bool confirma = true) {
         return linha(8).linha(idPasto).linha(confirmado).linha(confirma ? "s" : "n");
     }
-    // Menu 8 sem ter contado antes (o sistema nao pergunta nada).
+    /**
+     * @brief Menu 8 sem ter contado antes: o sistema avisa e não pergunta mais nada.
+     *
+     * @return O próprio roteiro.
+     */
     Roteiro& salvarSemContagem() { return linha(8); }
-    // Conta uma foto nova (PNG 1920x1080) e salva a contagem.
+    /**
+     * @brief Conta uma foto nova (PNG 1920x1080) e salva a contagem.
+     *
+     * @param nomeFoto   Nome do arquivo da foto na pasta temporária.
+     * @param animais    Quantos animais o motor simulado detecta.
+     * @param idPasto    Id do pasto contado.
+     * @param confirmado Total confirmado pelo usuário.
+     * @return O próprio roteiro.
+     */
     Roteiro& contagemSalva(const std::string& nomeFoto, int animais, int idPasto, int confirmado) {
         return criarImagem(foto(nomeFoto), 1920, 1080)
               .contar(foto(nomeFoto), animais)
               .salvar(idPasto, confirmado);
     }
-    // Menu 9: consultar historico.
+    /**
+     * @brief Menu 9: consultar o histórico.
+     *
+     * @param p          Período da consulta.
+     * @param idPasto    Id do pasto; 0 mostra todos.
+     * @param idOperador Id do funcionário; 0 mostra todos.
+     * @return O próprio roteiro.
+     */
     Roteiro& historico(const Periodo& p, int idPasto = 0, int idOperador = 0) {
         return linha(9).filtro(p, idPasto, idOperador);
     }
-    // Menu 10: erro da contagem.
+    /**
+     * @brief Menu 10: erro da contagem.
+     *
+     * @param p          Período do cálculo.
+     * @param idPasto    Id do pasto; 0 considera todos.
+     * @param idOperador Id do funcionário; 0 considera todos.
+     * @return O próprio roteiro.
+     */
     Roteiro& erro(const Periodo& p, int idPasto = 0, int idOperador = 0) {
         return linha(10).filtro(p, idPasto, idOperador);
     }
 
-    // Executa o programa com o roteiro e devolve tudo o que ele mostrou.
+    /**
+     * @brief Executa o programa com o roteiro e devolve tudo o que ele mostrou.
+     *
+     * Sempre acrescenta a opção 0 no fim, para encerrar o programa. Falha o teste se o programa não
+     * terminar normalmente: isso indica que o roteiro saiu de sincronia com o menu.
+     *
+     * @return Saída completa do programa.
+     */
     std::string executar() {
         linhas.push_back("0");  // sempre encerra o programa no fim
 
@@ -243,6 +460,14 @@ public:
     }
 
 private:
+    /**
+     * @brief Digita o filtro de período, pasto e funcionário usado pelo histórico e pelo erro.
+     *
+     * @param p          Período.
+     * @param idPasto    Id do pasto; 0 para todos.
+     * @param idOperador Id do funcionário; 0 para todos.
+     * @return O próprio roteiro.
+     */
     Roteiro& filtro(const Periodo& p, int idPasto, int idOperador) {
         return linha(p.di).linha(p.mi).linha(p.ai)
               .linha(p.df).linha(p.mf).linha(p.af)
@@ -250,13 +475,18 @@ private:
     }
 };
 
-// Gestor (id 1, fazenda 1) com o "Pasto Fundo" (id 1) ja cadastrado.
+/**
+ * @brief Roteiro inicial: Gestor (id 1, fazenda 1) com o Pasto Fundo (id 1) já cadastrado.
+ *
+ * @return Roteiro pronto para receber as próximas ações.
+ */
 static Roteiro comPastoFundo() {
     Roteiro r;
     r.login(GESTOR, 1, 1).cadastrarPasto("Pasto Fundo", "Divisa Norte", 200);
     return r;
 }
 
+/** @brief Sequência esperada de respostas: @c true para OK e @c false para RECUSADO. */
 typedef std::vector<bool> Resp;
 
 // =====================================================================

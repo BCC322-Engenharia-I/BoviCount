@@ -617,6 +617,12 @@ static void teste_cadastrar_pasto_administrador() {
 // RF-02  Consultar pastos/lotes
 // =====================================================================
 
+/**
+ * @brief Busca de pastos pelo nome.
+ *
+ * Confere a lista completa com o filtro vazio, o nome exato, a busca parcial sem diferenciar
+ * maiúsculas e a mensagem de nenhum pasto encontrado quando nada combina.
+ */
 static void teste_consultar_pastos_busca_por_nome() {
     Roteiro r = comPastoFundo();
     r.cadastrarPasto("Pasto Brejo", "Rio Sul", 120)
@@ -639,6 +645,11 @@ static void teste_consultar_pastos_busca_por_nome() {
     EXIGE(s, contem(aposPrompt(s, PROMPT_BUSCA, 3), "(nenhum pasto encontrado)"));
 }
 
+/**
+ * @brief Cada usuário vê apenas os pastos da própria fazenda.
+ *
+ * O Gestor da fazenda 2 vê só o Pasto Alheio e o Funcionário da fazenda 1 vê só o Pasto Fundo.
+ */
 static void teste_consultar_pastos_so_da_propria_fazenda() {
     Roteiro r = comPastoFundo();
     r.trocarUsuario(GESTOR, 9, 2)
@@ -658,6 +669,7 @@ static void teste_consultar_pastos_so_da_propria_fazenda() {
     EXIGE(s, !contem(fazenda1, "Pasto Alheio"));
 }
 
+/** @brief Fazenda sem pastos: a consulta mostra a mensagem de nenhum pasto encontrado. */
 static void teste_consultar_pastos_fazenda_sem_pastos() {
     Roteiro r;
     r.login(FUNCIONARIO, 5, 1).consultarPastos();
@@ -669,7 +681,13 @@ static void teste_consultar_pastos_fazenda_sem_pastos() {
 // RF-03  Editar pasto/lote
 // =====================================================================
 
-// Cenario 3 e recusas de edicao
+/**
+ * @brief Cenário 3 de 4.1 e recusas de edição.
+ *
+ * A edição da capacidade é aceita (o próprio nome não conta como repetido). Confere as recusas
+ * para capacidade 0, nome de outro pasto, nome vazio, localização vazia e pasto inexistente; o
+ * pasto continua com a capacidade 250.
+ */
 static void teste_editar_pasto() {
     Roteiro r = comPastoFundo();
     r.cadastrarPasto("Pasto Brejo", "Rio Sul", 120)
@@ -688,6 +706,10 @@ static void teste_editar_pasto() {
     EXIGE(s, contem(lista, "Pasto Fundo | Divisa Norte | capacidade 250"));  // continua com 250
 }
 
+/**
+ * @brief Edição do nome e da localização: o pasto 1 passa a ser Pasto Grande, em Divisa Sul, e
+ *        o nome antigo some da consulta.
+ */
 static void teste_editar_pasto_nome_e_localizacao() {
     Roteiro r = comPastoFundo();
     r.editarPasto(1, "Pasto Grande", "Divisa Sul", 300).consultarPastos();
@@ -699,6 +721,12 @@ static void teste_editar_pasto_nome_e_localizacao() {
     EXIGE(s, !contem(lista, "Pasto Fundo"));
 }
 
+/**
+ * @brief A edição é recusada para o Gestor de outra fazenda e para o Funcionário (sem
+ *        permissão).
+ *
+ * O pasto continua com os dados originais.
+ */
 static void teste_editar_pasto_de_outra_fazenda_e_funcionario() {
     Roteiro r = comPastoFundo();
     r.trocarUsuario(GESTOR, 9, 2).editarPasto(1, "Pasto Fundo", "Norte", 999)  // outra fazenda
@@ -714,7 +742,12 @@ static void teste_editar_pasto_de_outra_fazenda_e_funcionario() {
 // RF-04  Remover pasto/lote
 // =====================================================================
 
-// Cenario 4: pasto com contagem salva nao pode ser removido
+/**
+ * @brief Cenário 4 de 4.1: pasto com contagem salva não pode ser removido.
+ *
+ * Confere a recusa ao remover o Pasto Fundo (tem contagem), o sucesso ao remover o Pasto Brejo
+ * (sem contagens) e a recusa ao remover de novo e ao remover um id inexistente.
+ */
 static void teste_remover_pasto() {
     Roteiro r = comPastoFundo();
     r.cadastrarPasto("Pasto Brejo", "Rio Sul", 120)
@@ -734,6 +767,10 @@ static void teste_remover_pasto() {
     EXIGE(s, !contem(lista, "Pasto Brejo"));
 }
 
+/**
+ * @brief A remoção é recusada para o Funcionário e para o Gestor de outra fazenda; o pasto
+ *        continua cadastrado.
+ */
 static void teste_remover_pasto_sem_permissao_ou_de_outra_fazenda() {
     Roteiro r = comPastoFundo();
     r.trocarUsuario(FUNCIONARIO, 5, 1).removerPasto(1)
@@ -745,6 +782,7 @@ static void teste_remover_pasto_sem_permissao_ou_de_outra_fazenda() {
     EXIGE(s, contem(aposPrompt(s, PROMPT_BUSCA), "Pasto Fundo"));
 }
 
+/** @brief O Administrador remove pastos como o Gestor. */
 static void teste_remover_pasto_administrador() {
     Roteiro r = comPastoFundo();
     r.trocarUsuario(ADMINISTRADOR, 2, 1).removerPasto(1).consultarPastos();

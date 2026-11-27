@@ -1267,7 +1267,13 @@ static void teste_erro_so_com_confirmado_zero() {
 // Fluxo completo (3.3) e indicadores (1.1)
 // =====================================================================
 
-// O Gestor cadastra, o Funcionario conta e salva, o Gestor consulta e mede o erro.
+/**
+ * @brief Fluxo completo da seção 3.3 do projeto da API.
+ *
+ * O Gestor cadastra o pasto, o Funcionário escolhe o pasto, conta uma foto 4K e salva, e o
+ * Gestor consulta o histórico e mede o erro (0%). No fim, a remoção do pasto é recusada porque
+ * ele tem contagem.
+ */
 static void teste_fluxo_completo() {
     Roteiro r;
     r.login(GESTOR, 1, 1)
@@ -1291,7 +1297,11 @@ static void teste_fluxo_completo() {
     EXIGE(s, contem(aposPrompt(s, PROMPT_FUNC, 1), ">> Erro medio da contagem: 0%"));
 }
 
-// Indicador 1: nenhum pasto repetido e todos com capacidade informada
+/**
+ * @brief Indicador 1 de 1.1: nenhum pasto repetido e todos com capacidade informada.
+ *
+ * Os cadastros repetido, sem capacidade e incompleto são recusados e sobra um único pasto.
+ */
 static void teste_indicador_pastos_cadastrados_corretamente() {
     Roteiro r;
     r.login(GESTOR, 1, 1)
@@ -1306,7 +1316,13 @@ static void teste_indicador_pastos_cadastrados_corretamente() {
     EXIGE(s, ocorrencias(aposPrompt(s, PROMPT_BUSCA), " | capacidade ") == 1);
 }
 
-// Indicador 3: toda contagem salva traz quem contou, data e hora, pasto, totais e foto
+/**
+ * @brief Indicador 3 de 1.1: toda contagem salva traz quem contou, data e hora, pasto, totais e
+ *        foto.
+ *
+ * Confere identificador, data e hora, operador, pasto, total calculado, total confirmado e
+ * caminho da foto.
+ */
 static void teste_indicador_contagem_registrada_por_completo() {
     Roteiro r = comPastoFundo();
     r.trocarUsuario(FUNCIONARIO, 5, 1)
@@ -1327,6 +1343,15 @@ static void teste_indicador_contagem_registrada_por_completo() {
 
 // =====================================================================
 
+/**
+ * @brief Executa todos os testes funcionais, agrupados por requisito (RF-00 a RF-07, fluxo e
+ *        indicadores).
+ *
+ * Cria a pasta temporária no início e a remove no fim. Pré-requisito: bin/app compilado com
+ * `make compile`. Qualquer falha encerra o programa com erro.
+ *
+ * @return 0 se todos os testes passarem.
+ */
 int main() {
     std::error_code erro;
     fs::remove_all(pasta(), erro);

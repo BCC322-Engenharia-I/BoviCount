@@ -796,7 +796,13 @@ static void teste_remover_pasto_administrador() {
 // RF-05  Contar o gado por foto  (4.2)
 // =====================================================================
 
-// Cenario 1 + indicador 2 + nada e salvo ainda
+/**
+ * @brief Cenário 1 de 4.2 e indicador 2 de 1.1: o Funcionário envia a foto e o sistema marca
+ *        185 animais.
+ *
+ * Confere o sucesso, o total mostrado, o aviso de que nada foi salvo ainda e o tempo de análise
+ * de até 30 segundos.
+ */
 static void teste_contar_foto_principal() {
     Roteiro r;
     r.login(FUNCIONARIO, 5, 1)
@@ -810,7 +816,11 @@ static void teste_contar_foto_principal() {
     EXIGE(s, tempoDeAnalise(s) <= 30.0);
 }
 
-// Formatos aceitos: png, jpg e jpeg (sem diferenciar maiusculas)
+/**
+ * @brief Formatos aceitos: jpg, jpeg e png, sem diferenciar maiúsculas.
+ *
+ * As cinco fotos (a.jpg, b.jpeg, c.JPG, d.png e e.PNG) são aceitas.
+ */
 static void teste_contar_formatos_aceitos() {
     criarJPEG(foto("a.jpg"), 100, 100);
     criarJPEG(foto("b.jpeg"), 100, 100);
@@ -830,7 +840,11 @@ static void teste_contar_formatos_aceitos() {
     EXIGE(s, resultados(s) == Resp({true, true, true, true, true}));
 }
 
-// Cenario 2: formato nao aceito
+/**
+ * @brief Cenário 2 de 4.2: formato não aceito.
+ *
+ * Pdf, bmp, gif e arquivo sem extensão são recusados e nenhuma contagem é mostrada.
+ */
 static void teste_contar_formato_recusado() {
     criarTexto(foto("relatorio.pdf"), "%PDF-1.4");
     criarTexto(foto("foto.bmp"), "BM");
@@ -849,6 +863,12 @@ static void teste_contar_formato_recusado() {
     EXIGE(s, !contem(s, "Animais marcados"));
 }
 
+/**
+ * @brief Arquivos que não são uma imagem válida são recusados.
+ *
+ * Cobre arquivo inexistente, caminho vazio, conteúdo que não é imagem, arquivo vazio e uma
+ * pasta com nome terminado em png.
+ */
 static void teste_contar_arquivo_inexistente_ou_invalido() {
     criarTexto(foto("falso.png"), "isto nao e uma imagem");
     criarTexto(foto("vazio.png"), "");
@@ -867,7 +887,11 @@ static void teste_contar_arquivo_inexistente_ou_invalido() {
     EXIGE(s, !contem(s, "Animais marcados"));
 }
 
-// Limite de 4K: ate 3840x2160 (ou 2160x3840)
+/**
+ * @brief Limite de 4K: aceita até 3840x2160 (inclusive 2160x3840, em retrato).
+ *
+ * Recusa largura 3841, altura 2161 e imagem 8K; só as duas primeiras contagens são aceitas.
+ */
 static void teste_contar_limite_4k() {
     Roteiro r;
     r.login(FUNCIONARIO, 5, 1)
@@ -887,7 +911,7 @@ static void teste_contar_limite_4k() {
     EXIGE(s, ocorrencias(s, "Animais marcados: 10") == 2);
 }
 
-// Cenario 3: pasto sem animais mostra total 0 (resultado valido)
+/** @brief Cenário 3 de 4.2: pasto sem animais mostra total 0, um resultado válido. */
 static void teste_contar_foto_sem_animais() {
     Roteiro r;
     r.login(FUNCIONARIO, 5, 1)
@@ -899,7 +923,7 @@ static void teste_contar_foto_sem_animais() {
     EXIGE(s, contem(s, "Animais marcados: 0"));
 }
 
-// Funcionario, Gestor e Administrador podem contar
+/** @brief Funcionário, Gestor e Administrador podem contar o gado (40, 41 e 42 animais). */
 static void teste_contar_todos_os_perfis() {
     Roteiro r;
     r.login(FUNCIONARIO, 5, 1).criarImagem(foto("perfis.png"), 800, 600).contar(foto("perfis.png"), 40)
@@ -913,7 +937,12 @@ static void teste_contar_todos_os_perfis() {
     EXIGE(s, contem(s, "Animais marcados: 42"));
 }
 
-// Uma contagem recusada nao altera a ultima contagem valida
+/**
+ * @brief Uma contagem recusada não altera a última contagem válida.
+ *
+ * Conta 185 animais, tenta contar um pdf (recusado) e confere que o registro salvo depois
+ * continua com 185 calculados.
+ */
 static void teste_contar_recusa_preserva_contagem_anterior() {
     criarTexto(foto("relatorio2.pdf"), "%PDF-1.4");
 

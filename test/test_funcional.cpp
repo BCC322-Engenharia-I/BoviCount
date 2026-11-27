@@ -1085,7 +1085,11 @@ static void teste_salvar_gestor_e_administrador() {
 // RF-07  Consultar o historico e o erro da contagem  (4.4)
 // =====================================================================
 
-// Cenario 1: 185/185 e 180/200 resultam em erro de 5%
+/**
+ * @brief Cenário 1 de 4.4: as contagens 185/185 e 180/200 resultam em erro médio de 5%.
+ *
+ * O Gestor vê os dois registros do Funcionário 5 no histórico e o erro mostrado é 5%.
+ */
 static void teste_historico_e_erro_principal() {
     Roteiro r = comPastoFundo();
     r.trocarUsuario(FUNCIONARIO, 5, 1)
@@ -1104,7 +1108,11 @@ static void teste_historico_e_erro_principal() {
     EXIGE(s, contem(aposPrompt(s, PROMPT_FUNC, 1), ">> Erro medio da contagem: 5%"));
 }
 
-// Cenario 2: o Funcionario nao ve nenhuma informacao
+/**
+ * @brief Cenário 2 de 4.4: o Funcionário não vê nenhuma informação.
+ *
+ * O histórico vem vazio e o erro não é calculado.
+ */
 static void teste_historico_funcionario_nao_consulta() {
     Roteiro r = comPastoFundo();
     r.trocarUsuario(FUNCIONARIO, 5, 1)
@@ -1119,7 +1127,10 @@ static void teste_historico_funcionario_nao_consulta() {
     EXIGE(s, contem(aposPrompt(s, PROMPT_FUNC, 1), ">> Nao foi possivel calcular"));
 }
 
-// Cenario 3: sem contagens no periodo, lista vazia e erro nao calculado
+/**
+ * @brief Cenário 3 de 4.4: sem contagens no período (ano de 2020), a lista vem vazia e o erro
+ *        não é calculado.
+ */
 static void teste_historico_periodo_sem_contagens() {
     Roteiro r = comPastoFundo();
     r.contagemSalva("a.png", 185, 1, 185)
@@ -1131,7 +1142,7 @@ static void teste_historico_periodo_sem_contagens() {
     EXIGE(s, contem(aposPrompt(s, PROMPT_FUNC, 1), ">> Nao foi possivel calcular"));
 }
 
-// Fazenda sem nenhuma contagem
+/** @brief Fazenda sem nenhuma contagem salva: histórico vazio e erro não calculado. */
 static void teste_historico_sem_nenhuma_contagem() {
     Roteiro r;
     r.login(GESTOR, 1, 1).historico(TODO_PERIODO).erro(TODO_PERIODO);
@@ -1141,7 +1152,10 @@ static void teste_historico_sem_nenhuma_contagem() {
     EXIGE(s, contem(aposPrompt(s, PROMPT_FUNC, 1), ">> Nao foi possivel calcular"));
 }
 
-// O Administrador consulta como o Gestor
+/**
+ * @brief O Administrador consulta o histórico e o erro como o Gestor (dois registros e erro de
+ *        5%).
+ */
 static void teste_historico_administrador() {
     Roteiro r = comPastoFundo();
     r.contagemSalva("a.png", 185, 1, 185)
@@ -1155,7 +1169,11 @@ static void teste_historico_administrador() {
     EXIGE(s, contem(aposPrompt(s, PROMPT_FUNC, 1), ">> Erro medio da contagem: 5%"));
 }
 
-// Cada fazenda ve so o que e seu
+/**
+ * @brief Cada fazenda vê só o que é seu.
+ *
+ * O Gestor da fazenda 2 não enxerga a contagem da fazenda 1 e o erro não é calculado.
+ */
 static void teste_historico_isolado_por_fazenda() {
     Roteiro r = comPastoFundo();
     r.trocarUsuario(FUNCIONARIO, 5, 1)
@@ -1169,7 +1187,13 @@ static void teste_historico_isolado_por_fazenda() {
     EXIGE(s, contem(aposPrompt(s, PROMPT_FUNC, 1), ">> Nao foi possivel calcular"));
 }
 
-// Filtros por pasto e por funcionario
+/**
+ * @brief Filtros do histórico por pasto e por funcionário.
+ *
+ * Com duas contagens (operador 5 no pasto 1 e operador 1 no pasto 2), confere: sem filtro, só o
+ * pasto 2, só o funcionário 5, pasto 1 com funcionário 5 e a combinação sem resultado (pasto 2
+ * com funcionário 5).
+ */
 static void teste_historico_filtros_por_pasto_e_funcionario() {
     Roteiro r = comPastoFundo();
     r.cadastrarPasto("Pasto Brejo", "Rio Sul", 120)           // pasto 2
@@ -1198,7 +1222,10 @@ static void teste_historico_filtros_por_pasto_e_funcionario() {
     EXIGE(s, contem(aposPrompt(s, PROMPT_FUNC, 4), "(nenhuma contagem encontrada ou sem permissao)"));
 }
 
-// O erro conta a diferenca nos dois sentidos (220/200 e 180/200 dao 10% cada)
+/**
+ * @brief O erro conta a diferença nos dois sentidos: 220/200 e 180/200 dão 10% cada, então a
+ *        média é 10%.
+ */
 static void teste_erro_diferenca_absoluta() {
     Roteiro r = comPastoFundo();
     r.contagemSalva("a.png", 220, 1, 200)
@@ -1209,7 +1236,12 @@ static void teste_erro_diferenca_absoluta() {
     EXIGE(s, contem(aposPrompt(s, PROMPT_FUNC), ">> Erro medio da contagem: 10%"));
 }
 
-// Contagens com total confirmado 0 ficam fora do calculo, mas aparecem na lista
+/**
+ * @brief Contagens com total confirmado 0 ficam fora do cálculo do erro, mas continuam
+ *        aparecendo no histórico.
+ *
+ * Não dá para dividir por zero; o erro médio considera só a contagem 180/200 (10%).
+ */
 static void teste_erro_ignora_confirmado_zero() {
     Roteiro r = comPastoFundo();
     r.contagemSalva("a.png", 3, 1, 0)
@@ -1222,6 +1254,7 @@ static void teste_erro_ignora_confirmado_zero() {
     EXIGE(s, contem(aposPrompt(s, PROMPT_FUNC, 1), ">> Erro medio da contagem: 10%"));
 }
 
+/** @brief Se todas as contagens têm total confirmado 0, o erro não pode ser calculado. */
 static void teste_erro_so_com_confirmado_zero() {
     Roteiro r = comPastoFundo();
     r.contagemSalva("a.png", 0, 1, 0).erro(TODO_PERIODO);

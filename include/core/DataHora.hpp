@@ -18,6 +18,8 @@
  * @see Data
  * @see Registro::dateTime
  */
+class TesteDataHora;
+
 class DataHora {
 public:
     /** @brief Cria uma data e hora zeradas (não representa um momento válido). */
@@ -64,6 +66,7 @@ public:
     int second() const;
 
 private:
+    friend class TesteDataHora;
     Data data;   ///< Dia do momento.
     int hora;    ///< Hora (0 a 23).
     int minuto;  ///< Minuto (0 a 59).

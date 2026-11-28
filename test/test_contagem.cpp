@@ -228,7 +228,12 @@ static bool inalterada(const Contagem& c) {
 
 // ---------- Contar ----------
 
-// Cenario 1: Funcionario envia a foto e o sistema marca 185 animais.
+/**
+ * @brief Cenário 1 de 4.2: o Funcionário envia a foto e o sistema marca 185 animais.
+ *
+ * Confere o sucesso, o total e o número de caixas iguais a 185, a foto da contagem, o tempo de
+ * análise de até 30 segundos e uma única chamada ao motor.
+ */
 static void testeContagemFuncionario() {
     limpar();
     MotorSimulado motor(185);
@@ -244,6 +249,7 @@ static void testeContagemFuncionario() {
     assert(motor.chamadas == 1);
 }
 
+/** @brief Gestor e Administrador também podem contar: ambos obtêm 40 animais. */
 static void testeContagemGestorEAdministrador() {
     limpar();
     MotorSimulado motor(40);
@@ -259,7 +265,11 @@ static void testeContagemGestorEAdministrador() {
     assert(b.total() == 40);
 }
 
-// Formatos aceitos: jpeg, jpg e png (sem diferenciar maiusculas).
+/**
+ * @brief Formatos aceitos: jpeg, jpg e png, sem diferenciar maiúsculas.
+ *
+ * As cinco fotos são aceitas e o motor é chamado cinco vezes.
+ */
 static void testeFormatosAceitos() {
     limpar();
     MotorSimulado motor(10);
@@ -274,7 +284,10 @@ static void testeFormatosAceitos() {
     assert(motor.chamadas == 5);
 }
 
-// Cenario 3: pasto sem animais mostra total 0, um resultado valido.
+/**
+ * @brief Cenário 3 de 4.2: pasto sem animais mostra total 0, um resultado válido, sem nenhuma
+ *        caixa.
+ */
 static void testeContagemZero() {
     limpar();
     MotorSimulado motor(0);
@@ -286,7 +299,10 @@ static void testeContagemZero() {
     assert(c.boxes().size() == 0);
 }
 
-// Uma nova contagem substitui o resultado anterior.
+/**
+ * @brief Uma nova contagem substitui o resultado anterior: a contagem de saída passa a ter 7
+ *        animais.
+ */
 static void testeSubstituiContagemAnterior() {
     limpar();
     MotorSimulado motor(7);

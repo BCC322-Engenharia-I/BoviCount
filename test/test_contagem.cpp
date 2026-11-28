@@ -315,7 +315,12 @@ static void testeSubstituiContagemAnterior() {
 
 // ---------- Recusas ----------
 
-// Cenario 2: formato nao aceito, e o motor nem e chamado.
+/**
+ * @brief Cenário 2 de 4.2: formato não aceito.
+ *
+ * Pdf, bmp, gif e arquivo sem extensão são recusados, a contagem de saída fica intacta e o
+ * motor nem é chamado.
+ */
 static void testeFormatoRecusado() {
     limpar();
     MotorSimulado motor(185);
@@ -330,6 +335,10 @@ static void testeFormatoRecusado() {
     assert(motor.chamadas == 0);
 }
 
+/**
+ * @brief Arquivo inexistente e caminho vazio são recusados, sem alterar a saída e sem chamar o
+ *        motor.
+ */
 static void testeArquivoInexistente() {
     limpar();
     MotorSimulado motor(185);
@@ -342,7 +351,10 @@ static void testeArquivoInexistente() {
     assert(motor.chamadas == 0);
 }
 
-// Uma pasta nao e um arquivo de imagem, mesmo com nome terminado em .png.
+/**
+ * @brief Uma pasta não é um arquivo de imagem, mesmo com nome terminado em png: o pedido é
+ *        recusado.
+ */
 static void testeDiretorioRecusado() {
     limpar();
     MotorSimulado motor(185);
@@ -355,6 +367,11 @@ static void testeDiretorioRecusado() {
     assert(motor.chamadas == 0);
 }
 
+/**
+ * @brief Usuário com papel desconhecido (Visitante) não pode contar.
+ *
+ * O pedido é recusado, a saída fica intacta e o motor não é chamado.
+ */
 static void testePapelDesconhecido() {
     limpar();
     MotorSimulado motor(185);
@@ -366,7 +383,12 @@ static void testePapelDesconhecido() {
     assert(motor.chamadas == 0);
 }
 
-// Limite de 4K: ate 3840x2160 (ou 2160x3840); acima disso e recusado.
+/**
+ * @brief Limite de 4K: aceita até 3840x2160, inclusive em retrato, em PNG e em JPEG.
+ *
+ * Recusa largura ou altura acima do limite (3841, 2161, 8K e um JPEG 5000x3000). O motor não
+ * recebe nenhuma imagem acima de 4K.
+ */
 static void testeLimite4K() {
     limpar();
     MotorSimulado motor(10);
@@ -389,7 +411,10 @@ static void testeLimite4K() {
     assert(motor.chamadas == 3);  // o motor nao recebeu nenhuma imagem acima de 4K
 }
 
-// Cabecalho invalido ou arquivo vazio: recusado sem chamar o motor.
+/**
+ * @brief Cabeçalho inválido ou arquivo vazio: png e jpg falsos, arquivos vazios e um png
+ *        truncado são recusados sem chamar o motor.
+ */
 static void testeCabecalhoInvalido() {
     limpar();
     MotorSimulado motor(185);
@@ -405,7 +430,11 @@ static void testeCabecalhoInvalido() {
     assert(motor.chamadas == 0);
 }
 
-// Se o motor falhar, a Contagem de saida continua exatamente como estava.
+/**
+ * @brief Se o motor falhar, a contagem de saída continua exatamente como estava.
+ *
+ * O motor escreveu 185 marcações, mas nada vazou para a saída.
+ */
 static void testeFalhaDoMotor() {
     limpar();
     MotorSimulado motor(185, true);
@@ -417,6 +446,12 @@ static void testeFalhaDoMotor() {
     assert(inalterada(c));  // o motor escreveu 185 marcacoes, mas nada vazou para 'c'
 }
 
+/**
+ * @brief Executa todos os testes de contagem (contar e recusas) e remove a pasta temporária no
+ *        fim.
+ *
+ * @return 0 se todos os testes passarem; qualquer falha aborta o programa.
+ */
 int main() {
     std::cout << "===== TESTE DE CONTAGEM =====" << std::endl;
     testeContagemFuncionario();

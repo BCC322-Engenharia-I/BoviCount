@@ -1,3 +1,16 @@
+/**
+ * @file test_contagem.cpp
+ * @brief Testes do ServicoContagem (contar o gado a partir de uma foto).
+ *
+ * Os testes usam um motor de IA simulado (MotorSimulado) no lugar do motor real e imagens
+ * criadas na hora, só com o cabeçalho PNG ou JPEG, em uma pasta temporária.
+ * Cada função @c teste* cobre um cenário ou uma recusa e usa @c assert: a falha de qualquer
+ * verificação aborta o programa. O programa imprime "test_contagem: OK" ao final se todos
+ * os testes passarem.
+ *
+ * Os testes seguem os cenários de teste da seção 4.2 do projeto da API.
+ * Compile com `make compile-test-contagem` e execute com `make run-test-contagem`.
+ */
 #include <cassert>
 #include <cstdint>
 #include <filesystem>
@@ -16,27 +29,51 @@ namespace fs = std::filesystem;
 
 // ---------- Apoio ----------
 
-// Pasta temporaria onde os arquivos de teste sao criados.
+/**
+ * @brief Pasta temporária onde os arquivos de teste são criados.
+ *
+ * @return Caminho da pasta temporária.
+ */
 static fs::path pasta() {
     return fs::temp_directory_path() / "bovicount_test_contagem";
 }
 
+/** @brief Apaga e recria a pasta temporária, isolando um teste do outro. */
 static void limpar() {
     std::error_code erro;
     fs::remove_all(pasta(), erro);
     fs::create_directories(pasta());
 }
 
+/**
+ * @brief Monta o caminho completo de um arquivo dentro da pasta temporária.
+ *
+ * @param nome Nome do arquivo.
+ * @return Caminho completo do arquivo.
+ */
 static std::string caminho(const std::string& nome) {
     return (pasta() / nome).string();
 }
 
+/**
+ * @brief Grava bytes crus em um arquivo.
+ *
+ * @param arquivo Caminho do arquivo a criar.
+ * @param bytes   Bytes a gravar.
+ */
 static void escrever(const std::string& arquivo, const std::vector<unsigned char>& bytes) {
     std::ofstream saida(arquivo, std::ios::binary);
     saida.write(reinterpret_cast<const char*>(bytes.data()),
                 static_cast<std::streamsize>(bytes.size()));
 }
 
+/**
+ * @brief Acrescenta um inteiro de 32 bits em big-endian (byte mais significativo primeiro),
+ *        como o PNG grava as dimensões.
+ *
+ * @param v Bytes do arquivo em construção.
+ * @param n Valor a acrescentar.
+ */
 static void escreverBE32(std::vector<unsigned char>& v, std::uint32_t n) {
     v.push_back(static_cast<unsigned char>(n >> 24));
     v.push_back(static_cast<unsigned char>(n >> 16));
@@ -44,12 +81,25 @@ static void escreverBE32(std::vector<unsigned char>& v, std::uint32_t n) {
     v.push_back(static_cast<unsigned char>(n));
 }
 
+/**
+ * @brief Acrescenta um inteiro de 16 bits em big-endian, como o JPEG grava as dimensões.
+ *
+ * @param v Bytes do arquivo em construção.
+ * @param n Valor a acrescentar.
+ */
 static void escreverBE16(std::vector<unsigned char>& v, std::uint16_t n) {
     v.push_back(static_cast<unsigned char>(n >> 8));
     v.push_back(static_cast<unsigned char>(n));
 }
 
-// Cria um arquivo com cabecalho PNG valido (assinatura + IHDR) com as dimensoes dadas.
+/**
+ * @brief Cria um arquivo só com cabeçalho PNG válido (assinatura + IHDR) nas dimensões dadas.
+ *
+ * @param nome    Nome do arquivo.
+ * @param largura Largura em pixels.
+ * @param altura  Altura em pixels.
+ * @return Caminho completo do arquivo criado.
+ */
 static std::string criarPNG(const std::string& nome, std::uint32_t largura, std::uint32_t altura) {
     std::vector<unsigned char> b = {137, 80, 78, 71, 13, 10, 26, 10};
     escreverBE32(b, 13);
@@ -63,7 +113,14 @@ static std::string criarPNG(const std::string& nome, std::uint32_t largura, std:
     return arquivo;
 }
 
-// Cria um arquivo com cabecalho JPEG valido (SOI + SOF0) com as dimensoes dadas.
+/**
+ * @brief Cria um arquivo só com cabeçalho JPEG válido (SOI + SOF0) nas dimensões dadas.
+ *
+ * @param nome    Nome do arquivo.
+ * @param largura Largura em pixels.
+ * @param altura  Altura em pixels.
+ * @return Caminho completo do arquivo criado.
+ */
 static std::string criarJPEG(const std::string& nome, std::uint16_t largura, std::uint16_t altura) {
     std::vector<unsigned char> b = {0xFF, 0xD8, 0xFF, 0xC0};
     escreverBE16(b, 17);          // comprimento do segmento SOF0
@@ -77,7 +134,13 @@ static std::string criarJPEG(const std::string& nome, std::uint16_t largura, std
     return arquivo;
 }
 
-// Cria um arquivo qualquer com o texto dado (para testar cabecalhos invalidos).
+/**
+ * @brief Cria um arquivo com o texto dado, para testar formato errado ou cabeçalho inválido.
+ *
+ * @param nome  Nome do arquivo.
+ * @param texto Conteúdo do arquivo.
+ * @return Caminho completo do arquivo criado.
+ */
 static std::string criarTexto(const std::string& nome, const std::string& texto) {
     const std::string arquivo = caminho(nome);
     std::ofstream saida(arquivo, std::ios::binary);
@@ -85,18 +148,42 @@ static std::string criarTexto(const std::string& nome, const std::string& texto)
     return arquivo;
 }
 
-// Motor de IA simulado: devolve sempre o mesmo numero de animais.
+/**
+ * @brief Motor de IA simulado: devolve sempre o mesmo número de animais, sem analisar a imagem.
+ *
+ * Pode ser configurado para falhar e conta quantas vezes foi chamado; assim os testes verificam
+ * se o serviço recusou o pedido antes de chamar o motor.
+ */
 class MotorSimulado : public MotorVisao {
 private:
+    /** @brief Quantos animais o motor simula detectar. */
     int animais;
+    /** @brief Se @c true, o motor termina indicando falha. */
     bool falha;
 
 public:
+    /** @brief Quantas vezes detect() foi chamado. */
     int chamadas;
 
+    /**
+     * @brief Cria o motor simulado.
+     *
+     * @param animais Quantos animais detectar em cada chamada.
+     * @param falha   @c true para simular uma falha do motor.
+     */
     MotorSimulado(int animais, bool falha = false)
         : animais(animais), falha(falha), chamadas(0) {}
 
+    /**
+     * @brief Marca a quantidade configurada de caixas na contagem de saída.
+     *
+     * Mesmo quando simula falha, escreve na saída, para provar que o serviço não deixa esse
+     * resultado vazar.
+     *
+     * @param imagem   Imagem recebida (não é analisada).
+     * @param contagem Contagem de saída.
+     * @return @c false se o motor foi configurado para falhar.
+     */
     bool detect(const Imagem& imagem, Contagem& contagem) {
         ++chamadas;
         Colecao<Retangulo> caixas;
@@ -108,11 +195,18 @@ public:
     }
 };
 
+/** @brief Sessão de um Gestor (id 1, fazenda 1). */
 static Sessao gestor()        { return Sessao(Usuario(1, "Gestor", 1)); }
+/** @brief Sessão de um Funcionário (id 5, fazenda 1). */
 static Sessao funcionario()   { return Sessao(Usuario(5, "Funcionário", 1)); }
+/** @brief Sessão de um Administrador (id 2, fazenda 1). */
 static Sessao administrador() { return Sessao(Usuario(2, "Administrador", 1)); }
 
-// Contagem de apoio, para checar que uma recusa nao altera a saida.
+/**
+ * @brief Contagem de apoio, com 3 caixas, para checar que uma recusa não altera a saída.
+ *
+ * @return Contagem da foto anterior.jpg com 3 animais e 9 segundos de análise.
+ */
 static Contagem contagemAnterior() {
     Colecao<Retangulo> caixas;
     caixas.add(Retangulo(1, 1, 5, 5));
@@ -121,6 +215,12 @@ static Contagem contagemAnterior() {
     return Contagem(Imagem("anterior.jpg"), caixas, 9.0);
 }
 
+/**
+ * @brief Confere que a contagem ainda é a de contagemAnterior().
+ *
+ * @param c Contagem a verificar.
+ * @return @c true se total, foto e tempo de análise não mudaram.
+ */
 static bool inalterada(const Contagem& c) {
     return c.total() == 3 && c.image().path() == "anterior.jpg"
         && c.processingSeconds() == 9.0;

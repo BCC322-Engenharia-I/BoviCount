@@ -21,6 +21,8 @@
  * @see DataHora
  * @see FiltroHistorico
  */
+class TesteData;
+
 class Data {
 public:
     /**
@@ -75,6 +77,7 @@ public:
     bool operator<(const Data& outra) const;
 
 private:
+    friend class TesteData;
     int ano; ///< Ano.
     int mes; ///< Mês (1 a 12).
     int dia; ///< Dia do mês.

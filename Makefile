@@ -25,6 +25,8 @@ SRC_UNIT_REGISTRO = src/core/Data.cpp src/core/DataHora.cpp src/historico/Regist
 SRC_UNIT_RETANGULO = src/contagem/Retangulo.cpp
 SRC_UNIT_IMAGEM = src/contagem/Imagem.cpp
 SRC_UNIT_CONTAGEM = $(SRC_MODELO_CONTAGEM)
+SRC_UNIT_DATA = src/core/Data.cpp
+SRC_UNIT_DATAHORA = src/core/Data.cpp src/core/DataHora.cpp
 
 # flags de compilacao
 FLAGS = -Iinclude -std=c++17
@@ -121,12 +123,56 @@ compile-test-unit-contagem:
 run-test-unit-contagem:
 	./bin/test_unit_contagem
 
+# compila o teste unitario de Data
+compile-test-unit-data:
+	g++ $(FLAGS) $(SRC_UNIT_DATA) test/test_unit_data.cpp -o bin/test_unit_data
+
+# roda o teste unitario de Data
+run-test-unit-data:
+	./bin/test_unit_data
+
+# compila o teste unitario de DataHora
+compile-test-unit-datahora:
+	g++ $(FLAGS) $(SRC_UNIT_DATAHORA) test/test_unit_datahora.cpp -o bin/test_unit_datahora
+
+# roda o teste unitario de DataHora
+run-test-unit-datahora:
+	./bin/test_unit_datahora
+
+# compila o teste unitario de Iterador
+compile-test-unit-iterador:
+	g++ $(FLAGS) test/test_unit_iterador.cpp -o bin/test_unit_iterador
+
+# roda o teste unitario de Iterador
+run-test-unit-iterador:
+	./bin/test_unit_iterador
+
+# compila o teste unitario de Colecao
+compile-test-unit-colecao:
+	g++ $(FLAGS) test/test_unit_colecao.cpp -o bin/test_unit_colecao
+
+# roda o teste unitario de Colecao
+run-test-unit-colecao:
+	./bin/test_unit_colecao
+
+# compila o teste unitario de Regra
+compile-test-unit-regra:
+	g++ $(FLAGS) test/test_unit_regra.cpp -o bin/test_unit_regra
+
+# roda o teste unitario de Regra
+run-test-unit-regra:
+	./bin/test_unit_regra
+
 # compila e roda todos os testes unitarios (um arquivo por classe)
 compile-test-unitarios: compile-test-unit-pasto compile-test-unit-registro compile-test-unit-retangulo \
-						compile-test-unit-imagem compile-test-unit-contagem
+						compile-test-unit-imagem compile-test-unit-contagem \
+						compile-test-unit-data compile-test-unit-datahora compile-test-unit-iterador \
+						compile-test-unit-colecao compile-test-unit-regra
 
 run-test-unitarios: run-test-unit-pasto run-test-unit-registro run-test-unit-retangulo \
-					run-test-unit-imagem run-test-unit-contagem
+					run-test-unit-imagem run-test-unit-contagem \
+					run-test-unit-data run-test-unit-datahora run-test-unit-iterador \
+					run-test-unit-colecao run-test-unit-regra
 
 # compila os testes funcionais (precisam do bin/app)
 compile-test-funcional: compile

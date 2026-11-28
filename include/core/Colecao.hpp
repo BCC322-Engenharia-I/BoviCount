@@ -5,9 +5,12 @@
 #include "core/Iterador.hpp"
 
 // Lista de resultados de uma consulta (de pastos, de contagens salvas etc.).
+class TesteColecao;
+
 template <class T>
 class Colecao {
 private:
+    friend class TesteColecao;
     std::vector<T> itens;
 
 public:

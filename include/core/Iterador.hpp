@@ -6,9 +6,12 @@
 
 // Percorre uma lista de resultados, um item de cada vez.
 // Guarda uma copia dos itens, entao continua valido mesmo que a Colecao de origem deixe de existir.
+class TesteIterador;
+
 template <class T>
 class Iterador {
 private:
+    friend class TesteIterador;
     std::vector<T> itens;
     std::size_t posicao;
 
